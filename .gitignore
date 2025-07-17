@@ -1,0 +1,58 @@
+# ====== Node / Angular ======
+**/node_modules/
+**/.angular/cache/
+**/dist/
+**/tmp/
+**/out-tsc/
+**/bazel-out/
+npm-debug.log*
+yarn-error.log*
+pnpm-debug.log*
+**/.sass-cache/
+**/connect.lock
+**/coverage/
+**/libpeerconnection.log
+**/testem.log
+**/typings/
+
+# IDEs and editors
+**/.vscode/
+**/.idea/
+**/.project
+**/.classpath
+**/.c9/
+**/.settings/
+**/*.launch
+!**/.vscode/settings.json
+!**/.vscode/tasks.json
+!**/.vscode/launch.json
+!**/.vscode/extensions.json
+**/.history/
+
+# System files
+*.DS_Store
+Thumbs.db
+
+# ====== ASP.NET Core / .NET ======
+**/bin/
+**/obj/
+**/.vs/
+**/Migrations/
+**/*.user
+**/*.userosscache
+**/*.suo
+**/*.sln.docstates
+
+# User secrets
+appsettings.Development.json
+appsettings.Local.json
+
+# Publish / static output
+**/wwwroot/
+
+# Logs and backups
+**/*.log
+logs/
+*.tmp
+*.swp
+*.bak
