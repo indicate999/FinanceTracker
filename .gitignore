@@ -37,7 +37,6 @@ Thumbs.db
 **/bin/
 **/obj/
 **/.vs/
-**/Migrations/
 **/*.user
 **/*.userosscache
 **/*.suo
