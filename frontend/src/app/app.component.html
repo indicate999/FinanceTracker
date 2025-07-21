@@ -1,1 +1,12 @@
-<app-message></app-message>
+<div class="home-container">
+  <h1>Welcome to the Finance Tracker</h1>
+
+  <div class="button-group">
+    <button routerLink="/login">Log In</button>
+    <button routerLink="/register">Register</button>
+    <button routerLink="/message">Message</button>
+    <button (click)="onLogout()">Log out</button>
+  </div>
+</div>
+
+<router-outlet></router-outlet>

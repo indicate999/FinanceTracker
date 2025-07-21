@@ -1,0 +1,22 @@
+<div class="auth-container">
+  <h2>Register</h2>
+
+  <form [formGroup]="registerForm" (ngSubmit)="onSubmit()">
+    <input type="text" placeholder="Username" formControlName="username" />
+    <input type="password" placeholder="Password (min. 6 characters)" formControlName="password" />
+    <input type="text" placeholder="Display Name" formControlName="displayName" />
+
+    <button type="submit" [disabled]="registerForm.invalid">Create Account</button>
+  </form>
+
+  <div *ngIf="validationErrors.length > 0" class="error-list">
+    <ul>
+      <li *ngFor="let error of validationErrors">{{ error }}</li>
+    </ul>
+  </div>
+
+  <p>
+    Already have an account?
+    <a routerLink="/login">Log in here</a>
+  </p>
+</div>
