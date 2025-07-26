@@ -1,7 +1,9 @@
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 
 namespace FinanceTracker.Controllers;
 
+[Authorize]
 [ApiController]
 [Route("api/[controller]")]
 public class TestController : ControllerBase
@@ -10,5 +12,5 @@ public class TestController : ControllerBase
     public ActionResult<string> GetMessage()
     {
         return Ok("Hello from TestController");
-    } 
+    }
 }

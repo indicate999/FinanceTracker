@@ -3,7 +3,9 @@ using System.Security.Claims;
 using System.Text;
 using FinanceTracker.BusinessLogic.DTOs.Auth;
 using FinanceTracker.Data;
-using FinanceTracker.Models;
+using FinanceTracker.Models.Enums;
+using FinanceTracker.Models.Finance;
+using FinanceTracker.Models.Identity;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.IdentityModel.Tokens;
@@ -65,6 +67,16 @@ public class AuthController : ControllerBase
         };
 
         _db.UserProfiles.Add(profile);
+        
+        var uncategorized = new Category
+        {
+            Name = "WITHOUT CATEGORY",
+            Type = CategoryType.Neutral,
+            UserId = user.Id
+        };
+        _db.Categories.Add(uncategorized);
+
+        
         await _db.SaveChangesAsync();
 
         return Ok(new { message = "User created" });
@@ -89,8 +101,7 @@ public class AuthController : ControllerBase
     {
         var claims = new[]
         {
-            new Claim(JwtRegisteredClaimNames.Sub, user.Id),
-            new Claim("uid", user.Id),
+            new Claim(ClaimTypes.NameIdentifier, user.Id),
             new Claim("username", user.UserName!)
         };
 

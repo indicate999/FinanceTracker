@@ -1,8 +1,7 @@
-
 using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
 
-namespace FinanceTracker.Models;
+namespace FinanceTracker.Models.Identity;
 
 public class UserProfile
 {
