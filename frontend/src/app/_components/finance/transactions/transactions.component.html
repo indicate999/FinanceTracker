@@ -1,0 +1,39 @@
+<div class="container">
+  <h2>Transactions</h2>
+
+  <form [formGroup]="transactionForm" (ngSubmit)="isEditing ? saveEdit() : addTransaction()">
+    <input formControlName="amount" type="number" placeholder="Amount">
+    <select formControlName="categoryId">
+      <option [value]="null" disabled>Select category</option>
+      <option *ngFor="let c of filteredCategories" [value]="c.id">{{ c.name }}</option>
+    </select>
+    <select formControlName="type">
+      <option value="Expense">Expense</option>
+      <option value="Income">Income</option>
+    </select>
+    <input formControlName="date" type="date">
+    <button type="submit" [disabled]="transactionForm.invalid">
+      {{ isEditing ? 'Save' : 'Add' }} Transaction
+    </button>
+    <button *ngIf="isEditing" type="button" (click)="cancelEdit()">Cancel</button>
+  </form>
+
+  <div *ngIf="errorMessage" class="error">{{ errorMessage }}</div>
+
+  <table>
+    <tr>
+      <th>Amount</th><th>Category</th><th>Type</th><th>Date</th><th>Actions</th>
+    </tr>
+    <tr *ngFor="let t of transactions">
+      <td>{{ t.amount }}</td>
+      <td>{{ t.categoryName }}</td>
+      <td>{{ t.type }}</td>
+      <td>{{ t.date | date }}</td>
+      <td>
+        <button class="edit-btn" (click)="startEdit(t)">Edit</button>
+        <button class="delete-btn" (click)="deleteTransaction(t.id)">Delete</button>
+      </td>
+    </tr>
+  </table>
+</div>
+

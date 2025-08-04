@@ -3,7 +3,9 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using FinanceTracker.Data;
 using System.Security.Claims;
+using AutoMapper;
 using FinanceTracker.BusinessLogic.DTOs.Transaction;
+using FinanceTracker.Models.Enums;
 using FinanceTracker.Models.Finance;
 
 namespace FinanceTracker.Controllers;
@@ -14,10 +16,12 @@ namespace FinanceTracker.Controllers;
 public class TransactionController : ControllerBase
 {
     private readonly ApplicationDbContext _db;
+    private readonly IMapper _mapper;
 
-    public TransactionController(ApplicationDbContext db)
+    public TransactionController(ApplicationDbContext db, IMapper mapper)
     {
         _db = db;
+        _mapper = mapper;
     }
 
     [HttpGet]
@@ -27,17 +31,19 @@ public class TransactionController : ControllerBase
         var transactions = await _db.Transactions
             .Include(t => t.Category)
             .Where(t => t.UserId == userId)
-            .Select(t => new TransactionViewDto
+            /*.Select(t => new TransactionViewDto
             {
                 Id = t.Id,
                 Amount = t.Amount,
                 Date = t.Date,
                 Type = t.Type,
                 CategoryName = t.Category.Name
-            })
+            })*/
             .ToListAsync();
 
-        return Ok(transactions);
+        var result = _mapper.Map<List<TransactionViewDto>>(transactions);
+        
+        return Ok(result);
     }
 
     [HttpGet("{id}")]
@@ -47,18 +53,21 @@ public class TransactionController : ControllerBase
         var transaction = await _db.Transactions
             .Include(t => t.Category)
             .Where(t => t.Id == id && t.UserId == userId)
-            .Select(t => new TransactionViewDto
+           /* .Select(t => new TransactionViewDto
             {
                 Id = t.Id,
                 Amount = t.Amount,
                 Date = t.Date,
                 Type = t.Type,
                 CategoryName = t.Category.Name
-            })
+            })*/
             .FirstOrDefaultAsync();
 
         if (transaction == null) return NotFound();
-        return Ok(transaction);
+        
+        var result = _mapper.Map<TransactionViewDto>(transaction);
+        
+        return Ok(result);
     }
 
     [HttpPost]
@@ -78,36 +87,56 @@ public class TransactionController : ControllerBase
 
             categoryId = uncategorized.Id;
         }
+        
+        var category = await _db.Categories.FirstOrDefaultAsync(c =>
+            c.Id == categoryId && c.UserId == userId);
 
-        var transaction = new Transaction
-        {
-            Amount = dto.Amount,
-            Date = dto.Date,
-            Type = dto.Type,
-            CategoryId = categoryId,
-            UserId = userId!
-        };
+        if (category == null)
+            return BadRequest("Category not found");
+
+        if (!IsCompatible(dto.Type, category.Type))
+            return BadRequest("Category type does not match transaction type");
+
+        var transaction = _mapper.Map<Transaction>(dto);
+        transaction.CategoryId = categoryId;
+        transaction.UserId = userId!;
+        transaction.Date = transaction.Date.ToUniversalTime();
 
         _db.Transactions.Add(transaction);
         await _db.SaveChangesAsync();
-        return Ok();
+        
+        var result = _mapper.Map<TransactionViewDto>(transaction);
+        return Ok(result);
     }
 
     [HttpPut("{id}")]
     public async Task<IActionResult> UpdateTransaction(int id, TransactionDto dto)
     {
         var userId = User.FindFirstValue(ClaimTypes.NameIdentifier);
+        
+        if (userId == null)
+            return Unauthorized();
+        
         var transaction = await _db.Transactions.FirstOrDefaultAsync(t => t.Id == id && t.UserId == userId);
 
         if (transaction == null) return NotFound();
+        
+        var category = await _db.Categories
+            .FirstOrDefaultAsync(c => c.Id == dto.CategoryId && c.UserId == userId);
 
-        transaction.Amount = dto.Amount;
-        transaction.Date = dto.Date;
-        transaction.Type = dto.Type;
-        transaction.CategoryId = dto.CategoryId;
+        if (category == null)
+            return BadRequest("Category not found");
+
+        if (!IsCompatible(dto.Type, category.Type))
+            return BadRequest("Category type does not match transaction type");
+        
+        _mapper.Map(dto, transaction);
+        transaction.Date = transaction.Date.ToUniversalTime();
+        
         await _db.SaveChangesAsync();
 
-        return NoContent();
+        var result = _mapper.Map<TransactionViewDto>(transaction);
+        return Ok(result);
     }
 
     [HttpDelete("{id}")]
@@ -121,5 +150,12 @@ public class TransactionController : ControllerBase
         _db.Transactions.Remove(transaction);
         await _db.SaveChangesAsync();
         return NoContent();
+    }
+    
+    private bool IsCompatible(TransactionType transactionType, CategoryType categoryType)
+    {
+        return categoryType == CategoryType.Neutral
+               || (transactionType == TransactionType.Income && categoryType == CategoryType.Income)
+               || (transactionType == TransactionType.Expense && categoryType == CategoryType.Expense);
     }
 }

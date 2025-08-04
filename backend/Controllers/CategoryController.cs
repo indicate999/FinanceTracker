@@ -3,6 +3,8 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using FinanceTracker.Data;
 using System.Security.Claims;
+using AutoMapper;
+using AutoMapper.QueryableExtensions;
 using FinanceTracker.BusinessLogic.DTOs.Category;
 using FinanceTracker.Models.Finance;
 
@@ -14,10 +16,12 @@ namespace FinanceTracker.Controllers;
 public class CategoryController : ControllerBase
 {
     private readonly ApplicationDbContext _db;
+    private readonly IMapper _mapper;
 
-    public CategoryController(ApplicationDbContext db)
+    public CategoryController(ApplicationDbContext db, IMapper mapper)
     {
         _db = db;
+        _mapper = mapper;
     }
 
     [HttpGet]
@@ -26,12 +30,7 @@ public class CategoryController : ControllerBase
         var userId = User.FindFirstValue(ClaimTypes.NameIdentifier);
         var categories = await _db.Categories
             .Where(c => c.UserId == userId)
-            .Select(c => new CategoryViewDto
-            {
-                Id = c.Id,
-                Name = c.Name,
-                Type = c.Type
-            })
+            .ProjectTo<CategoryViewDto>(_mapper.ConfigurationProvider)
             .ToListAsync();
 
         return Ok(categories);
@@ -43,12 +42,7 @@ public class CategoryController : ControllerBase
         var userId = User.FindFirstValue(ClaimTypes.NameIdentifier);
         var category = await _db.Categories
             .Where(c => c.Id == id && c.UserId == userId)
-            .Select(c => new CategoryViewDto
-            {
-                Id = c.Id,
-                Name = c.Name,
-                Type = c.Type
-            })
+            .ProjectTo<CategoryViewDto>(_mapper.ConfigurationProvider)
             .FirstOrDefaultAsync();
 
         if (category == null) return NotFound();
@@ -58,16 +52,12 @@ public class CategoryController : ControllerBase
     [HttpPost]
     public async Task<IActionResult> CreateCategory(CategoryDto dto)
     {
-        var category = new Category
-        {
-            Name = dto.Name,
-            Type = dto.Type,
-            UserId = User.FindFirstValue(ClaimTypes.NameIdentifier)!
-        };
+        var category = _mapper.Map<Category>(dto);
+        category.UserId = User.FindFirstValue(ClaimTypes.NameIdentifier)!;
 
         _db.Categories.Add(category);
         await _db.SaveChangesAsync();
-        return Ok();
+        return Ok(category);
     }
 
     [HttpPut("{id}")]
@@ -77,9 +67,12 @@ public class CategoryController : ControllerBase
         var category = await _db.Categories.FirstOrDefaultAsync(c => c.Id == id && c.UserId == userId);
 
         if (category == null) return NotFound();
-
-        category.Name = dto.Name;
-        category.Type = dto.Type;
+        
+        if (category.Name == "WITHOUT CATEGORY")
+            return BadRequest("This category cannot be edited.");
+        
+        _mapper.Map(dto, category);
+        
         await _db.SaveChangesAsync();
 
         return NoContent();
@@ -92,6 +85,9 @@ public class CategoryController : ControllerBase
         var category = await _db.Categories.FirstOrDefaultAsync(c => c.Id == id && c.UserId == userId);
 
         if (category == null) return NotFound();
+        
+        if (category.Name == "WITHOUT CATEGORY")
+            return BadRequest("This category cannot be deleted.");
 
         _db.Categories.Remove(category);
         await _db.SaveChangesAsync();

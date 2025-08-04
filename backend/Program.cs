@@ -1,4 +1,5 @@
 using System.Text;
+using System.Text.Json.Serialization;
 using FinanceTracker.Data;
 using FinanceTracker.Models.Identity;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
@@ -7,10 +8,14 @@ using Microsoft.EntityFrameworkCore;
 using Microsoft.IdentityModel.Tokens;
 using Microsoft.OpenApi.Models;
 
+
+
 var builder = WebApplication.CreateBuilder(args);
 
 // Add services
-builder.Services.AddControllers();
+builder.Services.AddControllers()
+    .AddJsonOptions(options => { options.JsonSerializerOptions.Converters.Add(new JsonStringEnumConverter()); });
+;
 builder.Services.AddEndpointsApiExplorer();
 
 /*builder.Services.AddSwaggerGen(c =>
@@ -117,6 +122,12 @@ builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
     });
 
 builder.Services.AddAuthorization();
+
+
+//builder.Services.AddAutoMapper(AppDomain.CurrentDomain.GetAssemblies());
+
+builder.Services.AddAutoMapper(cfg => { }, typeof(Program).Assembly);
+
 
 
 /*builder.Services.AddCors(options =>
