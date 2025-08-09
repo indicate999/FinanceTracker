@@ -6,6 +6,7 @@ using System.Security.Claims;
 using AutoMapper;
 using AutoMapper.QueryableExtensions;
 using FinanceTracker.BusinessLogic.DTOs.Category;
+using FinanceTracker.BusinessLogic.DTOs.Transaction;
 using FinanceTracker.Models.Finance;
 
 namespace FinanceTracker.Controllers;
@@ -28,12 +29,43 @@ public class CategoryController : ControllerBase
     public async Task<ActionResult<IEnumerable<CategoryViewDto>>> GetCategories()
     {
         var userId = User.FindFirstValue(ClaimTypes.NameIdentifier);
+
         var categories = await _db.Categories
             .Where(c => c.UserId == userId)
             .ProjectTo<CategoryViewDto>(_mapper.ConfigurationProvider)
+            .AsNoTracking()
+            .OrderBy(c => c.Name)
             .ToListAsync();
 
         return Ok(categories);
+    }
+
+    [HttpGet("{id:int}/transactions")]
+    public async Task<ActionResult<IReadOnlyList<TransactionViewDto>>> GetTransactionsByCategory(
+        int id,
+        [FromQuery] int skip = 0,
+        [FromQuery] int take = 50)
+    {
+        var userId = User.FindFirstValue(ClaimTypes.NameIdentifier);
+
+        var owns = await _db.Categories
+            .AsNoTracking()
+            .AnyAsync(c => c.Id == id && c.UserId == userId);
+
+        if (!owns) return NotFound();
+
+        var pageSize = Math.Clamp(take, 1, 200);
+
+        var dtos = await _db.Transactions
+            .Where(t => t.UserId == userId && t.CategoryId == id)
+            .OrderByDescending(t => t.Date)
+            .Skip(skip)
+            .Take(pageSize)
+            .AsNoTracking()
+            .ProjectTo<TransactionViewDto>(_mapper.ConfigurationProvider)
+            .ToListAsync();
+
+        return Ok(dtos);
     }
 
     [HttpGet("{id}")]
@@ -67,12 +99,12 @@ public class CategoryController : ControllerBase
         var category = await _db.Categories.FirstOrDefaultAsync(c => c.Id == id && c.UserId == userId);
 
         if (category == null) return NotFound();
-        
+
         if (category.Name == "WITHOUT CATEGORY")
             return BadRequest("This category cannot be edited.");
-        
+
         _mapper.Map(dto, category);
-        
+
         await _db.SaveChangesAsync();
 
         return NoContent();
@@ -85,7 +117,7 @@ public class CategoryController : ControllerBase
         var category = await _db.Categories.FirstOrDefaultAsync(c => c.Id == id && c.UserId == userId);
 
         if (category == null) return NotFound();
-        
+
         if (category.Name == "WITHOUT CATEGORY")
             return BadRequest("This category cannot be deleted.");
 

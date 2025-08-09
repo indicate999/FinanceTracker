@@ -2,7 +2,7 @@
   <h2>Categories</h2>
 
   <form [formGroup]="categoryForm" (ngSubmit)="isEditing ? saveEdit() : addCategory()">
-    <input formControlName="name" type="text" placeholder="Category name" />
+    <input formControlName="name" type="text" placeholder="Category name"/>
 
     <select formControlName="type">
       <option value="Expense">Expense</option>
@@ -20,15 +20,71 @@
   <div class="error" *ngIf="errorMessage">{{ errorMessage }}</div>
 
   <ul>
-    <li *ngFor="let category of categories">
-      <span class="name">{{ category.name }}</span>
-      <span class="type">({{ category.type }})</span>
-      <ng-container *ngIf="category.name !== 'WITHOUT CATEGORY'">
-        <button class="btn" (click)="startEdit(category)">Edit</button>
-        <button class="btn delete" (click)="deleteCategory(category.id)">Delete</button>
-      </ng-container>
+    <li *ngFor="let category of categories" class="cat-item" [class.row-editing]="editingCategoryId === category.id" [class.open]="openPopoverId === category.id">
+      <div class="row">
+        <span class="name">{{ category.name }}</span>
+        <span class="type">({{ category.type }})</span>
+
+        <span class="count" [title]="(category.transactionCount ?? 0) + ' items'">
+    {{ category.transactionCount ?? 0 }}
+  </span>
+
+        <button class="icon-btn"
+                aria-label="Show transactions"
+                (click)="togglePopover(category)">
+          <svg viewBox="0 0 24 24" width="18" height="18" aria-hidden="true">
+            <circle cx="5" cy="12" r="2"></circle>
+            <circle cx="12" cy="12" r="2"></circle>
+            <circle cx="19" cy="12" r="2"></circle>
+          </svg>
+        </button>
+
+        <ng-container *ngIf="category.name !== 'WITHOUT CATEGORY'; else noActions">
+          <button class="btn btn-edit" (click)="startEdit(category)">Edit</button>
+          <button class="btn btn-delete" (click)="deleteCategory(category.id)">Delete</button>
+        </ng-container>
+      </div>
+
+      <ng-template #noActions>
+        <span class="spacer"></span>
+        <span class="spacer"></span>
+        </ng-template>
+
+
+        <div class="popover" *ngIf="openPopoverId === category.id">
+          <div class="popover-inner">
+            <div class="popover-header">
+              <span>Transactions</span>
+              <button class="close-btn" aria-label="Close" (click)="closePopover()">×</button>
+            </div>
+
+            <div *ngIf="category.isLoading" class="state">Loading...</div>
+            <div *ngIf="!category.isLoading && category.error" class="state error">{{ category.error }}</div>
+
+            <ng-container *ngIf="!category.isLoading && !category.error">
+              <div *ngIf="(category.transactions?.length ?? 0) === 0" class="state empty">
+                No transactions in this category
+              </div>
+
+              <ul *ngIf="(category.transactions?.length ?? 0) > 0" class="tx-list">
+                <li *ngFor="let t of category.transactions" class="tx-item">
+                  <div class="tx-main">
+                    <span class="tx-date">{{ t.date | date:'yyyy-MM-dd' }}</span>
+                    <span class="tx-amount">{{ t.amount | number:'1.2-2' }}</span>
+                    <span class="tx-type">{{ t.type }}</span>
+                  </div>
+                  <div class="tx-actions">
+                    <button class="btn btn-edit" (click)="goToTransactionEdit(t.id)">Edit</button>
+                  </div>
+                </li>
+              </ul>
+            </ng-container>
+          </div>
+        </div>
     </li>
   </ul>
+
+  <div class="backdrop" *ngIf="openPopoverId !== null" (click)="closePopover()"></div>
 </div>
 
 

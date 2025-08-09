@@ -1,3 +1,4 @@
+/* ===== Layout / Page ===== */
 :host {
   display: block;
   padding: 2rem;
@@ -12,6 +13,7 @@ h2 {
   margin-bottom: 2rem;
 }
 
+/* ===== Form ===== */
 form {
   display: flex;
   justify-content: center;
@@ -38,70 +40,202 @@ form {
     cursor: pointer;
     transition: background-color 0.2s ease;
 
-    &:hover {
-      background-color: #005fa3;
-    }
-
-    &:disabled {
-      background-color: #c0c0c0;
-      cursor: not-allowed;
-    }
+    &:hover { background-color: #005fa3; }
+    &:disabled { background-color: #c0c0c0; cursor: not-allowed; }
   }
 }
 
+/* ===== List ===== */
 ul {
   list-style: none;
   padding: 0;
-  max-width: 700px;
+  max-width: 900px;
   margin: 0 auto;
 }
 
-li {
-  display: grid;
-  grid-template-columns: 1fr auto auto auto;
-  align-items: center;
-  background-color: #ffffff;
-  border: 1px solid #cce4f7;
-  border-radius: 6px;
-  padding: 0.6rem 1rem;
-  margin-bottom: 0.5rem;
-  gap: 1rem;
-
-  span.name {
-    font-weight: bold;
-  }
-
-  span.type {
-    color: #666;
-    font-style: italic;
-  }
-
-  .btn {
-    background-color: #007acc;
-    color: white;
-    border: none;
-    border-radius: 6px;
-    padding: 0.4rem 0.9rem;
-    font-size: 0.9rem;
-    cursor: pointer;
-    transition: background-color 0.2s ease;
-
-    &:hover {
-      background-color: #005fa3;
-    }
-
-    &.delete {
-      background-color: #cc0000;
-
-      &:hover {
-        background-color: #990000;
-      }
-    }
-  }
+.cat-item {
+  position: relative;
+  border: 1px solid #d3e8ff;
+  background: #fff;
+  border-radius: 12px;
+  padding: 10px 12px;
+  margin-bottom: 10px;
+  box-shadow: 0 2px 8px rgba(0,0,0,.04);
 }
 
+/* 6 equal columns: name | type | count | icon | Edit | Delete */
+.row {
+  display: grid;
+  grid-template-columns: 1fr auto 44px 36px 88px 88px;
+  align-items: center;
+  gap: 10px;
+}
+
+/* Text */
+.name { font-weight: 700; color: #0b3d71; }
+.type { color: #5b7c99; }
+
+/* Count badge */
+.count {
+  min-width: 44px;
+  text-align: center;
+  padding: 2px 8px;
+  border-radius: 999px;
+  background: #e9f4ff;
+  border: 1px solid #b9dbff;
+  color: #0a5599;
+  font-weight: 600;
+}
+
+/* Icon button (popover trigger) */
+.icon-btn {
+  border: 1px solid #b9dbff;
+  background: #fff;
+  border-radius: 8px;
+  width: 32px;
+  height: 32px;
+  display: inline-grid;
+  place-items: center;
+  cursor: pointer;
+  transition: box-shadow .15s ease, transform .02s ease;
+}
+.icon-btn:hover { box-shadow: 0 0 0 3px #e3f2ff; }
+.icon-btn:active { transform: translateY(1px); }
+.icon-btn svg { fill: #0a5599; }
+
+/* ===== Buttons ===== */
+.btn {
+  height: 34px;
+  min-width: 88px;
+  padding: 0 12px;
+  border-radius: 8px;
+  cursor: pointer;
+  border: 1px solid transparent;
+  font-weight: 600;
+  font-size: 14px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  transition: box-shadow .15s ease, background-color .15s ease, border-color .15s ease;
+}
+.btn:hover { box-shadow: 0 0 0 3px #e3f2ff; }
+
+/* Edit = blue */
+.btn-edit {
+  background-color: #0d6efd;
+  border-color: #0d6efd;
+  color: #fff;
+}
+.btn-edit:hover { background-color: #0b5ed7; border-color: #0b5ed7; }
+
+/* Delete = red (support both `btn-delete` and `btn delete`) */
+.btn-delete,
+.btn.delete {
+  background-color: #dc3545 !important;
+  border-color: #dc3545 !important;
+  color: #fff !important;
+}
+.btn-delete:hover,
+.btn.delete:hover {
+  background-color: #b02a37 !important;
+  border-color: #b02a37 !important;
+}
+
+/* ===== Popover ===== */
+.popover {
+  position: absolute;
+  top: calc(100% + 8px);
+  right: 10px;
+  width: min(640px, 92vw);
+  background: #fff;
+  border: 1px solid #cfe6ff;
+  border-radius: 12px;
+  box-shadow: 0 10px 24px rgba(9,30,66,.12);
+  z-index: 20;
+}
+.popover-inner { padding: 10px; }
+
+.popover-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  background: #f6fbff;
+  border: 1px solid #e6f2ff;
+  border-radius: 8px;
+  padding: 8px 10px;
+  margin-bottom: 8px;
+  color: #0b3d71;
+  font-weight: 600;
+}
+
+.close-btn {
+  border: 1px solid #b9dbff;
+  background: #fff;
+  border-radius: 8px;
+  width: 28px;
+  height: 28px;
+  cursor: pointer;
+}
+
+/* Popover content */
+.state { padding: 10px; color: #0b3d71; }
+.state.error { color: #b00020; }
+.state.empty { color: #5b7c99; }
+
+.tx-list { list-style: none; margin: 0; padding: 0; max-height: 360px; overflow: auto; }
+.tx-item {
+  display: grid;
+  grid-template-columns: 1fr auto;
+  gap: 8px;
+  padding: 8px 6px;
+  border-bottom: 1px solid #eef5ff;
+}
+.tx-item:last-child { border-bottom: none; }
+
+.tx-main {
+  display: grid;
+  grid-template-columns: 120px 1fr 100px 1fr;
+  column-gap: 10px;
+  row-gap: 2px;
+  align-items: center;
+}
+.tx-date   { color: #0b3d71; font-weight: 600; }
+.tx-amount { text-align: right; }
+.tx-type   { text-align: center; }
+.tx-note   { opacity: .8; }
+
+.tx-actions { display: flex; align-items: center; gap: 6px; }
+
+/* Outside click area to close popover */
+.backdrop {
+  position: fixed;
+  inset: 0;
+  background: transparent;
+  z-index: 10;
+}
+
+/* Errors (top-level) */
 .error {
   color: red;
   text-align: center;
   margin-top: 1rem;
+}
+
+.row-editing {
+  background: #e9f4ff !important;
+  box-shadow: 0 0 0 3px #e3f2ff inset;
+  border-color: #7cc2ff !important;
+}
+
+
+.row-editing::before {
+  content: "";
+  display: block;
+  position: absolute;
+  left: -1px;
+  top: 0;
+  bottom: 0;
+  width: 4px;
+  border-radius: 12px 0 0 12px;
+  background: #0a5599;
 }

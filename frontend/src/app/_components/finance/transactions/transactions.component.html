@@ -24,7 +24,8 @@
     <tr>
       <th>Amount</th><th>Category</th><th>Type</th><th>Date</th><th>Actions</th>
     </tr>
-    <tr *ngFor="let t of transactions">
+    <tr *ngFor="let t of transactions; trackBy: trackById" #txRow
+        [attr.data-tx-id]="t.id" [class.row-editing]="editingId === t.id">
       <td>{{ t.amount }}</td>
       <td>{{ t.categoryName }}</td>
       <td>{{ t.type }}</td>

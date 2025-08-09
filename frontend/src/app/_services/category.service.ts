@@ -1,7 +1,7 @@
 import { HttpClient } from '@angular/common/http';
 import { Injectable } from '@angular/core';
 import { Observable } from 'rxjs';
-import { Category } from '../_models/finance.models';
+import { Category, CategoryWithCount, Transaction } from '../_models/finance.models';
 
 @Injectable({
   providedIn: 'root'
@@ -13,6 +13,18 @@ export class CategoryService {
 
   getAllCategories(): Observable<Category[]> {
     return this.http.get<Category[]>(this.baseUrl);
+  }
+
+  getCategoriesWithCounts(): Observable<CategoryWithCount[]> {
+    return this.http.get<CategoryWithCount[]>(
+      `${this.baseUrl}`
+    );
+  }
+
+  getTransactionsByCategory(categoryId: number): Observable<Transaction[]> {
+    return this.http.get<Transaction[]>(
+      `${this.baseUrl}/${categoryId}/transactions`
+    );
   }
 
   getCategoryById(id: number): Observable<Category> {

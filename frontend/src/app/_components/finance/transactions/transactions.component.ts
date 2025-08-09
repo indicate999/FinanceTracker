@@ -1,7 +1,7 @@
 import {CommonModule} from '@angular/common';
 import {Component, OnInit} from '@angular/core';
 import {FormBuilder, FormGroup, ReactiveFormsModule, Validators} from '@angular/forms';
-import {RouterModule} from '@angular/router';
+import {ActivatedRoute, Router, RouterModule} from '@angular/router';
 import {Category, Transaction} from '../../../_models/finance.models';
 import {TransactionService} from '../../../_services/transaction.service';
 import {CategoryService} from '../../../_services/category.service';
@@ -16,12 +16,21 @@ export class TransactionsComponent implements OnInit {
   transactionForm!: FormGroup;
   transactions: Transaction[] = [];
   categories: Category[] = [];
+
   isEditing = false;
   editingId: number | null = null;
+
   errorMessage = '';
 
-  constructor(private fb: FormBuilder, private transactionService: TransactionService, private categoryService: CategoryService) {
-  }
+  private pendingEditId: number | null = null;
+
+  constructor(
+    private fb: FormBuilder,
+    private transactionService: TransactionService,
+    private categoryService: CategoryService,
+    private route: ActivatedRoute,
+    private router: Router
+  ) {}
 
   ngOnInit(): void {
     this.transactionForm = this.fb.group({
@@ -34,19 +43,29 @@ export class TransactionsComponent implements OnInit {
     this.transactionForm.get('type')?.valueChanges.subscribe((newType: string) => {
       const selectedCategoryId = this.transactionForm.get('categoryId')?.value;
       const selectedCategory = this.categories.find(c => c.id === selectedCategoryId);
-
       if (selectedCategory && selectedCategory.type !== newType && selectedCategory.type !== 'Neutral') {
-        this.transactionForm.patchValue({categoryId: null});
+        this.transactionForm.patchValue({ categoryId: null });
       }
     });
 
-    this.loadTransactions();
+    this.route.queryParams.subscribe(p => {
+      const id = p['edit'] ? +p['edit'] : null;
+      if (id && id > 0) {
+        this.pendingEditId = id;
+        this.tryActivatePending();
+      }
+    });
+
     this.loadCategories();
+    this.loadTransactions();
   }
 
   loadTransactions(): void {
     this.transactionService.getTransactions().subscribe({
-      next: (data) => this.transactions = data,
+      next: (data) => {
+        this.transactions = data;
+        this.tryActivatePending(); // после загрузки — снова пробуем
+      },
       error: () => this.errorMessage = 'Failed to load transactions'
     });
   }
@@ -61,42 +80,42 @@ export class TransactionsComponent implements OnInit {
   addTransaction(): void {
     if (this.transactionForm.invalid) return;
     const newTransaction = this.transactionForm.value;
+
     this.transactionService.createTransaction(newTransaction).subscribe({
       next: (created) => {
         this.transactions.push(created);
-        this.transactionForm.reset({type: 'Expense', date: new Date().toISOString().substring(0, 10)});
+        this.transactionForm.reset({ type: 'Expense', date: new Date().toISOString().substring(0, 10) });
       },
       error: () => this.errorMessage = 'Failed to add transaction'
     });
   }
 
-  startEdit(t: Transaction): void {
+  startEdit(t: Transaction | number): void {
+    const tx = typeof t === 'number' ? this.transactions.find(x => x.id === t) : t;
+    if (!tx) return;
+
     this.isEditing = true;
-    this.editingId = t.id;
+    this.editingId = tx.id;
 
-    const formattedDate = t.date.substring(0, 10);
-
+    const formattedDate = tx.date.substring(0, 10);
     this.transactionForm.setValue({
-      amount: t.amount,
-      categoryId: t.categoryId,
-      type: t.type,
+      amount: tx.amount,
+      categoryId: tx.categoryId,
+      type: tx.type,
       date: formattedDate
     });
+
+    this.scrollToRow(tx.id);
   }
 
   saveEdit(): void {
     if (this.transactionForm.invalid || this.editingId === null) return;
-    const updated = {id: this.editingId, ...this.transactionForm.value};
-
-    const category = this.categories.find(c => c.id === updated.categoryId);
-    const categoryName = category ? category.name : '';
+    const updated = { id: this.editingId, ...this.transactionForm.value };
 
     this.transactionService.updateTransaction(updated).subscribe({
       next: (updatedTransaction) => {
         const i = this.transactions.findIndex(t => t.id === this.editingId);
-        if (i !== -1) {
-          this.transactions[i] = updatedTransaction;
-        }
+        if (i !== -1) this.transactions[i] = updatedTransaction;
         this.cancelEdit();
       },
       error: () => this.errorMessage = 'Failed to update transaction'
@@ -106,7 +125,7 @@ export class TransactionsComponent implements OnInit {
   cancelEdit(): void {
     this.isEditing = false;
     this.editingId = null;
-    this.transactionForm.reset({type: 'Expense', date: new Date().toISOString().substring(0, 10)});
+    this.transactionForm.reset({ type: 'Expense', date: new Date().toISOString().substring(0, 10) });
   }
 
   deleteTransaction(id: number): void {
@@ -118,8 +137,32 @@ export class TransactionsComponent implements OnInit {
 
   get filteredCategories(): Category[] {
     const type = this.transactionForm.get('type')?.value;
-    return this.categories.filter(c =>
-      c.type === type || c.type === 'Neutral'
-    );
+    return this.categories.filter(c => c.type === type || c.type === 'Neutral');
+  }
+
+  private tryActivatePending(): void {
+    if (!this.pendingEditId) return;
+    const id = this.pendingEditId;
+    const exists = this.transactions.some(t => t.id === id);
+    if (exists) {
+      this.startEdit(id);
+      this.clearEditParam();
+      this.pendingEditId = null;
+    }
+  }
+
+  private clearEditParam(): void {
+    this.router.navigate([], {
+      queryParams: { edit: null },
+      queryParamsHandling: 'merge',
+      replaceUrl: true
+    });
+  }
+
+  private scrollToRow(id: number): void {
+    setTimeout(() => {
+      const el = document.querySelector<HTMLElement>(`[data-tx-id="${id}"]`);
+      el?.scrollIntoView({ behavior: 'smooth', block: 'center' });
+    }, 50);
   }
 }

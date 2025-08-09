@@ -12,3 +12,14 @@ export interface Transaction {
   categoryId: number;
   categoryName: string;
 }
+
+export type CategoryVm = Category & {
+  transactionCount: number;
+  isLoading?: boolean;
+  error?: string | null;
+  transactions?: Transaction[];
+};
+
+export interface CategoryWithCount extends Category {
+  transactionCount: number;
+}

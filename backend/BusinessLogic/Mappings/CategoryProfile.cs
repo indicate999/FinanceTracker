@@ -14,6 +14,10 @@ public class CategoryProfile : Profile
             .ForMember(dest => dest.User, opt => opt.Ignore())
             .ForMember(dest => dest.Transactions, opt => opt.Ignore());
         
-        CreateMap<Category, CategoryViewDto>();
+        CreateMap<Category, CategoryViewDto>()
+            .ForMember(
+                dest => dest.TransactionCount,
+                opt => opt.MapFrom(src => src.Transactions.Count)
+            );
     }
 }

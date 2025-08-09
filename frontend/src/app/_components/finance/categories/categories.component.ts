@@ -1,8 +1,8 @@
 import { CommonModule } from '@angular/common';
-import { Component, OnInit } from '@angular/core';
+import { Component, HostListener, OnInit } from '@angular/core';
 import { FormBuilder, FormGroup, ReactiveFormsModule, Validators } from '@angular/forms';
-import { RouterModule } from '@angular/router';
-import { Category } from '../../../_models/finance.models';
+import {Router, RouterModule } from '@angular/router';
+import { Category, CategoryVm, Transaction } from '../../../_models/finance.models';
 import { CategoryService } from '../../../_services/category.service';
 
 @Component({
@@ -11,17 +11,22 @@ import { CategoryService } from '../../../_services/category.service';
   templateUrl: './categories.component.html',
   styleUrl: './categories.component.scss'
 })
-export class CategoriesComponent implements OnInit{
+export class CategoriesComponent implements OnInit {
   categoryForm!: FormGroup;
-  categories: Category[] = [];
+
+  categories: CategoryVm[] = [];
+
   errorMessage: string | null = null;
 
   editingCategoryId: number | null = null;
   isEditing: boolean = false;
 
+  openPopoverId: number | null = null;
+
   constructor(
     private fb: FormBuilder,
-    private categoryService: CategoryService
+    private categoryService: CategoryService,
+    private router: Router
   ) {}
 
   ngOnInit(): void {
@@ -34,9 +39,15 @@ export class CategoriesComponent implements OnInit{
   }
 
   loadCategories(): void {
-    this.categoryService.getAllCategories().subscribe({
-      next: (data) => this.categories = data,
-      error: (err) => this.errorMessage = 'Failed to load categories'
+    this.categoryService.getCategoriesWithCounts().subscribe({
+      next: (data) => {
+        this.categories = data.map(c => ({
+          ...c,
+          isLoading: false,
+          error: null
+        }));
+      },
+      error: () => this.errorMessage = 'Failed to load categories'
     });
   }
 
@@ -47,14 +58,15 @@ export class CategoriesComponent implements OnInit{
 
     this.categoryService.createCategory(newCategory).subscribe({
       next: (category) => {
-        this.categories.push(category);
+        const vm: CategoryVm = { ...category, transactionCount: 0, isLoading: false, error: null };
+        this.categories.push(vm);
         this.categoryForm.reset({ type: 'Neutral' });
       },
-      error: (err) => this.errorMessage = 'Failed to add category'
+      error: () => this.errorMessage = 'Failed to add category'
     });
   }
 
-  startEdit(category: Category): void {
+  startEdit(category: CategoryVm): void {
     if (category.name === 'WITHOUT CATEGORY') return;
 
     this.isEditing = true;
@@ -76,8 +88,13 @@ export class CategoriesComponent implements OnInit{
     this.categoryService.updateCategory(updatedCategory).subscribe({
       next: () => {
         const index = this.categories.findIndex(c => c.id === updatedCategory.id);
-        if (index !== -1) this.categories[index] = updatedCategory;
-
+        if (index !== -1) {
+          const prev = this.categories[index];
+          this.categories[index] = {
+            ...prev,
+            ...updatedCategory
+          };
+        }
         this.cancelEdit();
       },
       error: () => this.errorMessage = 'Failed to update category'
@@ -102,5 +119,42 @@ export class CategoriesComponent implements OnInit{
         this.errorMessage = 'Failed to delete category';
       }
     });
+  }
+
+  togglePopover(c: CategoryVm): void {
+    if (this.openPopoverId === c.id) {
+      this.closePopover();
+      return;
+    }
+    this.openPopoverId = c.id;
+
+    if (c.transactions !== undefined) return;
+
+    c.isLoading = true;
+    c.error = null;
+
+    this.categoryService.getTransactionsByCategory(c.id).subscribe({
+      next: (tx: Transaction[]) => {
+        c.transactions = tx;
+        c.isLoading = false;
+      },
+      error: () => {
+        c.error = 'Failed to load transactions';
+        c.isLoading = false;
+      }
+    });
+  }
+
+  closePopover(): void {
+    this.openPopoverId = null;
+  }
+
+  @HostListener('document:keydown.escape')
+  onEsc(): void {
+    if (this.openPopoverId !== null) this.closePopover();
+  }
+
+  goToTransactionEdit(transactionId: number): void {
+    this.router.navigate(['/transactions'], { queryParams: { edit: transactionId } });
   }
 }
