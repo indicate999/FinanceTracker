@@ -7,6 +7,7 @@ using AutoMapper;
 using FinanceTracker.BusinessLogic.DTOs.Transaction;
 using FinanceTracker.Models.Enums;
 using FinanceTracker.Models.Finance;
+using FinanceTracker.Utils;
 
 namespace FinanceTracker.Controllers;
 
@@ -31,14 +32,6 @@ public class TransactionController : ControllerBase
         var transactions = await _db.Transactions
             .Include(t => t.Category)
             .Where(t => t.UserId == userId)
-            /*.Select(t => new TransactionViewDto
-            {
-                Id = t.Id,
-                Amount = t.Amount,
-                Date = t.Date,
-                Type = t.Type,
-                CategoryName = t.Category.Name
-            })*/
             .ToListAsync();
 
         var result = _mapper.Map<List<TransactionViewDto>>(transactions);
@@ -53,14 +46,6 @@ public class TransactionController : ControllerBase
         var transaction = await _db.Transactions
             .Include(t => t.Category)
             .Where(t => t.Id == id && t.UserId == userId)
-           /* .Select(t => new TransactionViewDto
-            {
-                Id = t.Id,
-                Amount = t.Amount,
-                Date = t.Date,
-                Type = t.Type,
-                CategoryName = t.Category.Name
-            })*/
             .FirstOrDefaultAsync();
 
         if (transaction == null) return NotFound();
@@ -80,7 +65,7 @@ public class TransactionController : ControllerBase
         if (categoryId == 0)
         {
             var uncategorized = await _db.Categories.FirstOrDefaultAsync(c =>
-                c.UserId == userId && c.Name == "WITHOUT CATEGORY");
+                c.UserId == userId && c.Name == Constants.DefaultCategoryName);
 
             if (uncategorized == null)
                 return BadRequest("Default category not found");

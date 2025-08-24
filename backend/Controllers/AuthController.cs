@@ -9,6 +9,7 @@ using FinanceTracker.Models.Identity;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.IdentityModel.Tokens;
+using FinanceTracker.Utils;
 
 namespace FinanceTracker.Controllers;
 
@@ -70,7 +71,7 @@ public class AuthController : ControllerBase
         
         var uncategorized = new Category
         {
-            Name = "WITHOUT CATEGORY",
+            Name = Constants.DefaultCategoryName,
             Type = CategoryType.Neutral,
             UserId = user.Id
         };

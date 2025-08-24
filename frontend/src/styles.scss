@@ -1,1 +1,14 @@
 /* You can add global styles to this file, and also import other style files */
+@import "@angular/material/prebuilt-themes/indigo-pink.css";
+
+.custom-confirmation-snackbar {
+  .mat-mdc-snack-bar-action {
+    background-color: transparent;
+    border-color: #ffab40;
+    color: #ffab40;
+
+    &:hover {
+      background-color: rgba(255, 171, 64, 0.15);
+    }
+  }
+}

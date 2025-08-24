@@ -165,4 +165,6 @@ export class TransactionsComponent implements OnInit {
       el?.scrollIntoView({ behavior: 'smooth', block: 'center' });
     }, 50);
   }
+
+  trackById = (index: number, t: Transaction) => t.id;
 }

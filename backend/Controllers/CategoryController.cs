@@ -7,7 +7,9 @@ using AutoMapper;
 using AutoMapper.QueryableExtensions;
 using FinanceTracker.BusinessLogic.DTOs.Category;
 using FinanceTracker.BusinessLogic.DTOs.Transaction;
+using FinanceTracker.Models.Enums;
 using FinanceTracker.Models.Finance;
+using FinanceTracker.Utils;
 
 namespace FinanceTracker.Controllers;
 
@@ -96,14 +98,34 @@ public class CategoryController : ControllerBase
     public async Task<IActionResult> UpdateCategory(int id, CategoryDto dto)
     {
         var userId = User.FindFirstValue(ClaimTypes.NameIdentifier);
-        var category = await _db.Categories.FirstOrDefaultAsync(c => c.Id == id && c.UserId == userId);
+        var category = await _db.Categories
+            .Include(c => c.Transactions)
+            .FirstOrDefaultAsync(c => c.Id == id && c.UserId == userId);
 
         if (category == null) return NotFound();
 
-        if (category.Name == "WITHOUT CATEGORY")
+        if (category.Name == Constants.DefaultCategoryName)
             return BadRequest("This category cannot be edited.");
 
+        var oldType = category.Type;
+        
         _mapper.Map(dto, category);
+        
+        if (category.Type != oldType && category.Type != CategoryType.Neutral)
+        {
+            var defaultCategory = await _db.Categories.FirstOrDefaultAsync(c => c.UserId == userId && c.Name == Constants.DefaultCategoryName);
+            if (defaultCategory != null)
+            {
+                foreach (var transaction in category.Transactions.ToList())
+                {
+                    if ((category.Type == CategoryType.Income && transaction.Type == TransactionType.Expense) ||
+                        (category.Type == CategoryType.Expense && transaction.Type == TransactionType.Income))
+                    {
+                        transaction.CategoryId = defaultCategory.Id;
+                    }
+                }
+            }
+        }
 
         await _db.SaveChangesAsync();
 
@@ -118,7 +140,7 @@ public class CategoryController : ControllerBase
 
         if (category == null) return NotFound();
 
-        if (category.Name == "WITHOUT CATEGORY")
+        if (category.Name == Constants.DefaultCategoryName)
             return BadRequest("This category cannot be deleted.");
 
         _db.Categories.Remove(category);
