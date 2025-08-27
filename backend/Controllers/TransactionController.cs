@@ -26,14 +26,27 @@ public class TransactionController : ControllerBase
     }
 
     [HttpGet]
-    public async Task<ActionResult<IEnumerable<TransactionViewDto>>> GetTransactions()
+    public async Task<ActionResult<IEnumerable<TransactionViewDto>>> GetTransactions(
+        [FromQuery] string sortBy = "date", 
+        [FromQuery] string sortOrder = "desc")
     {
         var userId = User.FindFirstValue(ClaimTypes.NameIdentifier);
-        var transactions = await _db.Transactions
+        
+        var query = _db.Transactions
             .Include(t => t.Category)
-            .Where(t => t.UserId == userId)
-            .ToListAsync();
+            .Where(t => t.UserId == userId);
 
+        bool isAscending = sortOrder.ToLower() == "asc";
+        query = (sortBy.ToLower()) switch
+        {
+            "amount" => isAscending ? query.OrderBy(t => t.Amount) : query.OrderByDescending(t => t.Amount),
+            "type" => isAscending ? query.OrderBy(t => t.Type) : query.OrderByDescending(t => t.Type),
+            "date" => isAscending ? query.OrderBy(t => t.Date) : query.OrderByDescending(t => t.Date),
+            "category" => isAscending ? query.OrderBy(t => t.Category.Name) : query.OrderByDescending(t => t.Category.Name),
+            _ => isAscending ? query.OrderBy(t => t.Date) : query.OrderByDescending(t => t.Date),
+        };
+
+        var transactions = await query.ToListAsync();
         var result = _mapper.Map<List<TransactionViewDto>>(transactions);
         
         return Ok(result);

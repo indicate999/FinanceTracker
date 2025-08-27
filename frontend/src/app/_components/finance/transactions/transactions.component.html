@@ -22,7 +22,39 @@
 
   <table>
     <tr>
-      <th>Amount</th><th>Category</th><th>Type</th><th>Date</th><th>Actions</th>
+      <th>
+        <span class="header-item" (click)="sortTransactions('amount')">
+        Amount
+        <ng-container
+          *ngIf="transactionSort.column === 'amount'">{{ transactionSort.direction === 'asc' ? '▲' : '▼' }}
+        </ng-container>
+        </span>
+      </th>
+      <th>
+        <span class="header-item" (click)="sortTransactions('category')">
+        Category
+        <ng-container
+          *ngIf="transactionSort.column === 'category'">{{ transactionSort.direction === 'asc' ? '▲' : '▼' }}
+        </ng-container>
+        </span>
+      </th>
+      <th>
+        <span class="header-item" (click)="sortTransactions('type')">
+      Type
+        <ng-container
+          *ngIf="transactionSort.column === 'type'">{{ transactionSort.direction === 'asc' ? '▲' : '▼' }}
+        </ng-container>
+        </span>
+      </th>
+      <th>
+        <span class="header-item" (click)="sortTransactions('date')">
+      Date
+        <ng-container
+          *ngIf="transactionSort.column === 'date'">{{ transactionSort.direction === 'asc' ? '▲' : '▼' }}
+        </ng-container>
+        </span>
+      </th>
+      <th>Actions</th>
     </tr>
     <tr *ngFor="let t of transactions; trackBy: trackById" #txRow
         [attr.data-tx-id]="t.id" [class.row-editing]="editingId === t.id">

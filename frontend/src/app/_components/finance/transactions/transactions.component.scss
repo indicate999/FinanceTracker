@@ -107,4 +107,8 @@ table tr.row-editing > td {
   border-left: 4px solid #0a5599;
 }
 
+.header-item {
+  cursor: pointer;
+  user-select: none;
+}
 

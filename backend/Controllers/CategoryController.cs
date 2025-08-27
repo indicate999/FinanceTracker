@@ -28,17 +28,25 @@ public class CategoryController : ControllerBase
     }
 
     [HttpGet]
-    public async Task<ActionResult<IEnumerable<CategoryViewDto>>> GetCategories()
+    public async Task<ActionResult<IEnumerable<CategoryViewDto>>> GetCategories(
+        [FromQuery] string sortBy = "name",
+        [FromQuery] string sortOrder = "asc")
     {
         var userId = User.FindFirstValue(ClaimTypes.NameIdentifier);
 
-        var categories = await _db.Categories
+        var query = _db.Categories
             .Where(c => c.UserId == userId)
             .ProjectTo<CategoryViewDto>(_mapper.ConfigurationProvider)
-            .AsNoTracking()
-            .OrderBy(c => c.Name)
-            .ToListAsync();
+            .AsNoTracking();
 
+        bool isAscending = sortOrder.ToLower() == "asc";
+        query = (sortBy.ToLower()) switch
+        {
+            "type" => isAscending ? query.OrderBy(c => c.Type) : query.OrderByDescending(c => c.Type),
+            _ => isAscending ? query.OrderBy(c => c.Name) : query.OrderByDescending(c => c.Name),
+        };
+        
+        var categories = await query.ToListAsync();
         return Ok(categories);
     }
 
@@ -60,7 +68,7 @@ public class CategoryController : ControllerBase
 
         var dtos = await _db.Transactions
             .Where(t => t.UserId == userId && t.CategoryId == id)
-            .OrderByDescending(t => t.Date)
+            .OrderBy(t => t.Date)
             .Skip(skip)
             .Take(pageSize)
             .AsNoTracking()

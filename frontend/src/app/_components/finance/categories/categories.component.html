@@ -19,6 +19,19 @@
 
   <div class="error" *ngIf="errorMessage">{{ errorMessage }}</div>
 
+  <div class="list-header">
+    <span class="header-item name" (click)="sortCategories('name')">
+      Name
+      <ng-container *ngIf="categorySort.column === 'name'">{{ categorySort.direction === 'asc' ? '▲' : '▼' }}</ng-container>
+    </span>
+    <span class="header-item type" (click)="sortCategories('type')">
+      Type
+      <ng-container *ngIf="categorySort.column === 'type'">{{ categorySort.direction === 'asc' ? '▲' : '▼' }}</ng-container>
+    </span>
+    <span class="header-item count">Items</span>
+    <span class="header-item actions">Actions</span>
+  </div>
+
   <ul>
     <li *ngFor="let category of categories" class="cat-item" [class.row-editing]="editingCategoryId === category.id" [class.open]="openPopoverId === category.id">
       <div class="row">

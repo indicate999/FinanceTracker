@@ -1,4 +1,4 @@
-import { HttpClient } from '@angular/common/http';
+import { HttpClient, HttpParams } from '@angular/common/http';
 import { Injectable } from '@angular/core';
 import { Observable } from 'rxjs';
 import { Category, CategoryWithCount, Transaction } from '../_models/finance.models';
@@ -15,10 +15,12 @@ export class CategoryService {
     return this.http.get<Category[]>(this.baseUrl);
   }
 
-  getCategoriesWithCounts(): Observable<CategoryWithCount[]> {
-    return this.http.get<CategoryWithCount[]>(
-      `${this.baseUrl}`
-    );
+  getCategoriesWithCounts(sortBy: string, sortOrder: string): Observable<CategoryWithCount[]> {
+    let params = new HttpParams()
+      .set('sortBy', sortBy)
+      .set('sortOrder', sortOrder);
+
+    return this.http.get<CategoryWithCount[]>(`${this.baseUrl}`, { params });
   }
 
   getTransactionsByCategory(categoryId: number): Observable<Transaction[]> {

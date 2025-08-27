@@ -26,6 +26,8 @@ export class CategoriesComponent implements OnInit {
 
   openPopoverId: number | null = null;
 
+  categorySort = { column: 'name', direction: 'asc' };
+
   constructor(
     private fb: FormBuilder,
     private categoryService: CategoryService,
@@ -44,7 +46,7 @@ export class CategoriesComponent implements OnInit {
   }
 
   loadCategories(): void {
-    this.categoryService.getCategoriesWithCounts().subscribe({
+    this.categoryService.getCategoriesWithCounts(this.categorySort.column, this.categorySort.direction).subscribe({
       next: (data) => {
         this.categories = data.map(c => ({
           ...c,
@@ -54,6 +56,16 @@ export class CategoriesComponent implements OnInit {
       },
       error: () => this.errorMessage = 'Failed to load categories'
     });
+  }
+
+  sortCategories(column: string): void {
+    if (this.categorySort.column === column) {
+      this.categorySort.direction = this.categorySort.direction === 'asc' ? 'desc' : 'asc';
+    } else {
+      this.categorySort.column = column;
+      this.categorySort.direction = 'asc';
+    }
+    this.loadCategories();
   }
 
   addCategory(): void {

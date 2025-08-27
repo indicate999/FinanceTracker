@@ -241,3 +241,84 @@ ul {
 }
 
 
+
+
+
+// CSS for your existing HTML structure with span.header-item elements
+.list-header {
+  display: flex;
+
+  margin: 0 auto;
+  align-items: center;
+  padding: 12px 16px;
+  border-bottom: 2px solid #dee2e6;
+  background-color: #f8f9fa;
+  font-weight: 600;
+  max-width: 850px;
+  color: #495057;
+}
+
+.header-item {
+  // Define specific widths for each column
+  &.name {
+    flex: 0 0 300px; // Fixed width for name column
+    cursor: pointer;
+    user-select: none;
+
+    &:hover {
+      color: #0056b3;
+    }
+  }
+
+  &.type {
+    flex: 0 0 120px; // Fixed width for type column
+    text-align: center;
+    cursor: pointer;
+    user-select: none;
+    margin-left: 15px;
+
+    &:hover {
+      color: #0056b3;
+    }
+  }
+
+  &.count {
+    flex: 0 0 80px; // Fixed width for items/count column
+    text-align: center;
+    margin-left: 10px;
+  }
+
+  &.actions {
+    flex: 0 0 170px; // Fixed width for actions column
+    text-align: right;
+  }
+}
+
+// Also style your data rows to match the header alignment
+.row {
+  display: flex;
+  align-items: center;
+  padding: 12px 16px;
+  border-bottom: 1px solid #e9ecef;
+
+  .name {
+    flex: 0 0 300px; // Same width as header
+  }
+
+  .type {
+    flex: 0 0 120px; // Same width as header
+    text-align: center;
+  }
+
+  .count {
+    flex: 0 0 80px; // Same width as header
+    text-align: center;
+  }
+
+  .actions {
+    flex: 0 0 180px; // Same width as header
+    display: flex;
+    justify-content: flex-end;
+    gap: 8px;
+  }
+}

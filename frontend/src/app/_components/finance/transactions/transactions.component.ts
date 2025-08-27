@@ -24,6 +24,8 @@ export class TransactionsComponent implements OnInit {
 
   private pendingEditId: number | null = null;
 
+  transactionSort = { column: 'date', direction: 'desc' };
+
   constructor(
     private fb: FormBuilder,
     private transactionService: TransactionService,
@@ -61,10 +63,10 @@ export class TransactionsComponent implements OnInit {
   }
 
   loadTransactions(): void {
-    this.transactionService.getTransactions().subscribe({
+    this.transactionService.getTransactions(this.transactionSort.column, this.transactionSort.direction).subscribe({
       next: (data) => {
         this.transactions = data;
-        this.tryActivatePending(); // после загрузки — снова пробуем
+        this.tryActivatePending();
       },
       error: () => this.errorMessage = 'Failed to load transactions'
     });
@@ -77,13 +79,23 @@ export class TransactionsComponent implements OnInit {
     });
   }
 
+  sortTransactions(column: string): void {
+    if (this.transactionSort.column === column) {
+      this.transactionSort.direction = this.transactionSort.direction === 'asc' ? 'desc' : 'asc';
+    } else {
+      this.transactionSort.column = column;
+      this.transactionSort.direction = 'asc';
+    }
+    this.loadTransactions();
+  }
+
   addTransaction(): void {
     if (this.transactionForm.invalid) return;
     const newTransaction = this.transactionForm.value;
 
     this.transactionService.createTransaction(newTransaction).subscribe({
-      next: (created) => {
-        this.transactions.push(created);
+      next: () => {
+        this.loadTransactions()
         this.transactionForm.reset({ type: 'Expense', date: new Date().toISOString().substring(0, 10) });
       },
       error: () => this.errorMessage = 'Failed to add transaction'

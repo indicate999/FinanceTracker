@@ -1,4 +1,4 @@
-import { HttpClient } from '@angular/common/http';
+import { HttpClient, HttpParams } from '@angular/common/http';
 import { Injectable } from '@angular/core';
 import { Transaction } from '../_models/finance.models';
 import { Observable } from 'rxjs';
@@ -9,8 +9,12 @@ export class TransactionService {
 
   constructor(private http: HttpClient) {}
 
-  getTransactions(): Observable<Transaction[]> {
-    return this.http.get<Transaction[]>(this.baseUrl);
+  getTransactions(sortBy: string = 'date', sortOrder: string = 'desc'): Observable<Transaction[]> {
+    let params = new HttpParams()
+      .set('sortBy', sortBy)
+      .set('sortOrder', sortOrder);
+
+    return this.http.get<Transaction[]>(this.baseUrl, { params });
   }
 
   createTransaction(tx: Omit<Transaction, 'id'>): Observable<Transaction> {
