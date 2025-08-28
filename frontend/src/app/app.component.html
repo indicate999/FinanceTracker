@@ -1,14 +1,36 @@
-<div class="home-container">
-  <h1>Welcome to the Finance Tracker</h1>
-
-  <div class="button-group">
-    <button routerLink="/login">Log In</button>
-    <button routerLink="/register">Register</button>
-    <button routerLink="/transactions">Transactions</button>
-    <button routerLink="/categories">Categories</button>
-    <button routerLink="/message">Message</button>
-    <button (click)="onLogout()">Log out</button>
+<header class="app-header">
+  <div class="disclaimer-banner">
+    <p><strong>Disclaimer:</strong> This is a non-commercial portfolio project created for demonstration and learning purposes only.</p>
   </div>
-</div>
 
-<router-outlet></router-outlet>
+  <nav class="main-nav">
+    <div class="nav-group-left">
+      <a routerLink="/project-overview" class="btn" routerLinkActive="active">Project Overview</a>
+      <a routerLink="/privacy-policy" class="btn" routerLinkActive="active">Privacy Policy</a>
+    </div>
+
+    <!-- Main app navigation, shown only to logged-in users -->
+    <div class="nav-group-main" *ngIf="authService.currentUser$ | async">
+      <a routerLink="/transactions" class="btn" routerLinkActive="active">Transactions</a>
+      <a routerLink="/categories" class="btn" routerLinkActive="active">Categories</a>
+    </div>
+
+    <div class="nav-group-right">
+      <!-- Show these buttons only if the user is NOT logged in -->
+      <ng-container *ngIf="!(authService.currentUser$ | async)">
+        <a routerLink="/login" class="btn btn-secondary">Log In</a>
+        <a routerLink="/register" class="btn btn-primary">Register</a>
+      </ng-container>
+
+      <!-- Show this button only if the user IS logged in -->
+      <ng-container *ngIf="authService.currentUser$ | async">
+        <button (click)="onLogout()" class="btn btn-danger">Log Out</button>
+      </ng-container>
+    </div>
+  </nav>
+</header>
+
+<main class="main-content">
+  <router-outlet></router-outlet>
+</main>
+

@@ -1,0 +1,96 @@
+<div class="overview-container">
+  <header class="overview-header">
+    <h1>Finance Tracker Project Overview</h1>
+    <p class="subtitle">A summary of the project's architecture, features, and key code implementations.</p>
+  </header>
+
+  <section class="overview-section">
+    <h2>Core Functionality</h2>
+    <p>The application is designed to help users track their personal finances by managing income and expenses through a system of transactions and categories.</p>
+    <ul>
+      <li>User Authentication (Registration & Login)</li>
+      <li>Full CRUD (Create, Read, Update, Delete) operations for Transactions.</li>
+      <li>Full CRUD operations for Categories, with special protections for the default category.</li>
+      <li>Dynamic server-side sorting for data lists.</li>
+    </ul>
+  </section>
+
+  <section class="overview-section">
+    <h2>Technology Stack</h2>
+    <div class="tech-stack-container">
+      <div class="tech-stack">
+        <h3>Backend</h3>
+        <ul>
+          <li>C# & .NET</li>
+          <li>ASP.NET Core Web API</li>
+          <li>Entity Framework Core (for data access)</li>
+          <li>PostgreSQL (Database)</li>
+          <li>AutoMapper (for DTO mapping)</li>
+        </ul>
+      </div>
+      <div class="tech-stack">
+        <h3>Frontend</h3>
+        <ul>
+          <li>Angular & TypeScript</li>
+          <li>Angular Material (for UI components like MatSnackBar)</li>
+          <li>SCSS for styling</li>
+        </ul>
+      </div>
+      <div class="tech-stack">
+        <h3>DevOps & Deployment</h3>
+        <ul>
+          <li>Docker (for application containerization)</li>
+          <li>Azure App Service (for cloud deployment)</li>
+        </ul>
+      </div>
+    </div>
+  </section>
+
+  <section class="overview-section">
+    <h2>Code Implementation Highlights</h2>
+    <div class="highlight-card">
+      <h3>Data Integrity: Transaction & Category Types</h3>
+      <p>
+        Implemented critical business logic on the backend to maintain data consistency. The system enforces that 'Income' transactions can only exist in 'Income' or 'Neutral' categories, and 'Expense' transactions in 'Expense' or 'Neutral' categories.
+      </p>
+      <p>
+        If a user action violates this rule (e.g., changing a category's type), the backend automatically re-assigns the affected transactions to the user's <span class="code-snippet">"WITHOUT CATEGORY"</span> default category. This logic is handled in the <span class="code-snippet">CategoryController</span> and <span class="code-snippet">TransactionController</span>.
+      </p>
+    </div>
+
+    <div class="highlight-card">
+      <h3>Efficient DTO Mapping with AutoMapper</h3>
+      <p>
+        To streamline the process of converting data models (Entities) to Data Transfer Objects (DTOs) for API responses, the project leverages <span class="code-snippet">AutoMapper</span>. This library automates the mapping of object properties, significantly reducing repetitive boilerplate code in the controllers and making the codebase cleaner and more maintainable.
+      </p>
+    </div>
+
+    <div class="highlight-card">
+      <h3>Containerized Deployment with Docker & Azure</h3>
+      <p>
+        The entire application is containerized using <span class="code-snippet">Docker</span>. This encapsulates the application and its dependencies, ensuring a consistent environment from local development to production. These Docker images are deployed to <span class="code-snippet">Azure App Service</span>, a fully managed platform that simplifies deployment, scaling, and monitoring, providing a robust and reliable hosting solution in the cloud.
+      </p>
+    </div>
+
+    <div class="highlight-card">
+      <h3>Centralized Constants</h3>
+      <p>
+        To avoid hardcoding magic strings, a static <span class="code-snippet">Constants</span> class was created in the backend project (<span class="code-snippet">/Utils/Constants.cs</span>). This holds shared values like the default category name, making the code cleaner and easier to maintain.
+      </p>
+    </div>
+
+    <div class="highlight-card">
+      <h3>Dynamic Server-Side Sorting</h3>
+      <p>
+        The API endpoints for fetching categories and transactions were enhanced to accept <span class="code-snippet">sortBy</span> and <span class="code-snippet">sortOrder</span> query parameters. The backend now performs the sorting using LINQ, ensuring the frontend receives data in the desired order efficiently. This reduces the processing load on the client.
+      </p>
+    </div>
+
+    <div class="highlight-card">
+      <h3>UI/UX & User Confirmations</h3>
+      <p>
+        On the frontend, user experience is improved by providing clear warnings for actions with side effects. When a user changes a category's type, an <span class="code-snippet">MatSnackBar</span> appears with a "Confirm" action, warning them that some transactions may be moved. This prevents accidental data changes. Custom styles were applied to the snackbar for a consistent look and feel.
+      </p>
+    </div>
+  </section>
+</div>

@@ -29,7 +29,7 @@ export class LoginComponent implements OnInit{
     if (this.loginForm.invalid) return;
 
     this.authService.login(this.loginForm.value as LoginRequest).subscribe({
-      next: () => this.router.navigate(['/message']),
+      next: () => this.router.navigate(['/project-overview']),
       error: () => this.errorMessage = 'Incorrect login or password'
     });
   }

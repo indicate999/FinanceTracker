@@ -38,8 +38,8 @@
         <span class="name">{{ category.name }}</span>
         <span class="type">({{ category.type }})</span>
 
-        <span class="count" [title]="(category.transactionCount ?? 0) + ' items'">
-    {{ category.transactionCount ?? 0 }}
+        <span class="count" [title]="(category.transactionCount) + ' items'">
+    {{ category.transactionCount }}
   </span>
 
         <button class="icon-btn"
