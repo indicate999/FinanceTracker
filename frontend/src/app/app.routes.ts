@@ -6,10 +6,12 @@ import { TransactionsComponent } from './_components/finance/transactions/transa
 import { CategoriesComponent } from './_components/finance/categories/categories.component';
 import { ProjectOverviewComponent } from "./_components/information/project-overview/project-overview.component";
 import { PrivacyPolicyComponent } from "./_components/information/privacy-policy/privacy-policy.component";
+import { SettingsComponent } from "./_components/security/settings/settings.component";
 
 export const routes: Routes = [
   {path: '', redirectTo: '/project-overview', pathMatch: 'full' },
   {path: 'project-overview', component: ProjectOverviewComponent },
+  {path: 'privacy-policy', component: PrivacyPolicyComponent },
   {path: 'login', component: LoginComponent },
   {path: 'register', component: RegisterComponent },
   {
@@ -22,5 +24,9 @@ export const routes: Routes = [
     component: TransactionsComponent,
     canActivate: [AuthGuard]
   },
-  {path: 'privacy-policy', component: PrivacyPolicyComponent }
+  {
+    path: 'settings',
+    component: SettingsComponent,
+    canActivate: [AuthGuard]
+  }
 ];

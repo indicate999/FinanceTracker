@@ -52,4 +52,8 @@ export class AuthService {
   isAuthenticated(): boolean {
     return !!this.currentUserValue;
   }
+
+  deleteAccount(): Observable<void> {
+    return this.http.delete<void>(`${this.apiUrl}/delete`);
+  }
 }

@@ -124,3 +124,17 @@
   // Optional: A subtle glow to make it stand out even more
   box-shadow: 0 0 0 3px rgba(13, 110, 253, 0.25);
 }
+
+.settings-btn {
+  /* Remove default button padding if you want the SVG to fill the space */
+  padding: 0.5rem;
+  /* Adjust background/border as needed to match your theme */
+  background: none;
+  border: none;
+  color: inherit; /* Inherit text color, or set a specific color */
+  display: flex; /* To center the SVG vertically if needed */
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+}
+
