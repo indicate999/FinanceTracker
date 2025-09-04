@@ -1,15 +1,9 @@
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
-using Microsoft.EntityFrameworkCore;
-using FinanceTracker.Data;
 using System.Security.Claims;
-using AutoMapper;
-using AutoMapper.QueryableExtensions;
 using FinanceTracker.BusinessLogic.DTOs.Category;
 using FinanceTracker.BusinessLogic.DTOs.Transaction;
-using FinanceTracker.Models.Enums;
-using FinanceTracker.Models.Finance;
-using FinanceTracker.Utils;
+using FinanceTracker.BusinessLogic.Interfaces.Services;
 
 namespace FinanceTracker.Controllers;
 
@@ -18,13 +12,11 @@ namespace FinanceTracker.Controllers;
 [Route("api/[controller]")]
 public class CategoryController : ControllerBase
 {
-    private readonly ApplicationDbContext _db;
-    private readonly IMapper _mapper;
+    private readonly ICategoryService _categoryService;
 
-    public CategoryController(ApplicationDbContext db, IMapper mapper)
+    public CategoryController(ICategoryService categoryService)
     {
-        _db = db;
-        _mapper = mapper;
+        _categoryService = categoryService;
     }
 
     [HttpGet]
@@ -33,21 +25,9 @@ public class CategoryController : ControllerBase
         [FromQuery] string sortOrder = "asc")
     {
         var userId = User.FindFirstValue(ClaimTypes.NameIdentifier);
+        if (userId == null) return Unauthorized();
 
-        var query = _db.Categories
-            .Where(c => c.UserId == userId)
-            .Include(c => c.Transactions)
-            .ProjectTo<CategoryViewDto>(_mapper.ConfigurationProvider)
-            .AsNoTracking();
-
-        bool isAscending = sortOrder.ToLower() == "asc";
-        query = (sortBy.ToLower()) switch
-        {
-            "type" => isAscending ? query.OrderBy(c => c.Type) : query.OrderByDescending(c => c.Type),
-            _ => isAscending ? query.OrderBy(c => c.Name) : query.OrderByDescending(c => c.Name),
-        };
-        
-        var categories = await query.ToListAsync();
+        var categories = await _categoryService.GetCategoriesAsync(userId, sortBy, sortOrder);
         return Ok(categories);
     }
 
@@ -58,24 +38,11 @@ public class CategoryController : ControllerBase
         [FromQuery] int take = 50)
     {
         var userId = User.FindFirstValue(ClaimTypes.NameIdentifier);
+        if (userId == null) return Unauthorized();
 
-        var owns = await _db.Categories
-            .AsNoTracking()
-            .AnyAsync(c => c.Id == id && c.UserId == userId);
-
-        if (!owns) return NotFound();
-
-        var pageSize = Math.Clamp(take, 1, 200);
-
-        var dtos = await _db.Transactions
-            .Where(t => t.UserId == userId && t.CategoryId == id)
-            .OrderBy(t => t.Date)
-            .Skip(skip)
-            .Take(pageSize)
-            .AsNoTracking()
-            .ProjectTo<TransactionViewDto>(_mapper.ConfigurationProvider)
-            .ToListAsync();
-
+        var dtos = await _categoryService.GetTransactionsByCategoryAsync(id, userId, skip, take);
+        if (dtos == null) return NotFound(); // If category not found or unauthorized
+        
         return Ok(dtos);
     }
 
@@ -83,12 +50,9 @@ public class CategoryController : ControllerBase
     public async Task<ActionResult<CategoryViewDto>> GetCategoryById(int id)
     {
         var userId = User.FindFirstValue(ClaimTypes.NameIdentifier);
-        var category = await _db.Categories
-            .Where(c => c.Id == id && c.UserId == userId)
-            .Include(c => c.Transactions)
-            .ProjectTo<CategoryViewDto>(_mapper.ConfigurationProvider)
-            .FirstOrDefaultAsync();
+        if (userId == null) return Unauthorized();
 
+        var category = await _categoryService.GetCategoryByIdAsync(id, userId);
         if (category == null) return NotFound();
         return Ok(category);
     }
@@ -96,49 +60,25 @@ public class CategoryController : ControllerBase
     [HttpPost]
     public async Task<IActionResult> CreateCategory(CategoryDto dto)
     {
-        var category = _mapper.Map<Category>(dto);
-        category.UserId = User.FindFirstValue(ClaimTypes.NameIdentifier)!;
+        var userId = User.FindFirstValue(ClaimTypes.NameIdentifier);
+        if (userId == null) return Unauthorized();
 
-        _db.Categories.Add(category);
-        await _db.SaveChangesAsync();
-        return Ok(category);
+        var createdCategory = await _categoryService.CreateCategoryAsync(userId, dto);
+        return Ok(createdCategory);
     }
 
     [HttpPut("{id}")]
     public async Task<IActionResult> UpdateCategory(int id, CategoryDto dto)
     {
         var userId = User.FindFirstValue(ClaimTypes.NameIdentifier);
-        var category = await _db.Categories
-            .Include(c => c.Transactions)
-            .FirstOrDefaultAsync(c => c.Id == id && c.UserId == userId);
+        if (userId == null) return Unauthorized();
 
-        if (category == null) return NotFound();
-
-        if (category.Name == Constants.DefaultCategoryName)
-            return BadRequest("This category cannot be edited.");
-
-        var oldType = category.Type;
-        
-        _mapper.Map(dto, category);
-        
-        if (category.Type != oldType && category.Type != CategoryType.Neutral)
+        var (success, error) = await _categoryService.UpdateCategoryAsync(id, userId, dto);
+        if (!success)
         {
-            var defaultCategory = await _db.Categories.FirstOrDefaultAsync(c => c.UserId == userId && c.Name == Constants.DefaultCategoryName);
-            if (defaultCategory != null)
-            {
-                foreach (var transaction in category.Transactions.ToList())
-                {
-                    if ((category.Type == CategoryType.Income && transaction.Type == TransactionType.Expense) ||
-                        (category.Type == CategoryType.Expense && transaction.Type == TransactionType.Income))
-                    {
-                        transaction.CategoryId = defaultCategory.Id;
-                    }
-                }
-            }
+            if (error == "Category not found.") return NotFound(error);
+            return BadRequest(error);
         }
-
-        await _db.SaveChangesAsync();
-
         return NoContent();
     }
 
@@ -146,15 +86,14 @@ public class CategoryController : ControllerBase
     public async Task<IActionResult> DeleteCategory(int id)
     {
         var userId = User.FindFirstValue(ClaimTypes.NameIdentifier);
-        var category = await _db.Categories.FirstOrDefaultAsync(c => c.Id == id && c.UserId == userId);
+        if (userId == null) return Unauthorized();
 
-        if (category == null) return NotFound();
-
-        if (category.Name == Constants.DefaultCategoryName)
-            return BadRequest("This category cannot be deleted.");
-
-        _db.Categories.Remove(category);
-        await _db.SaveChangesAsync();
+        var (success, error) = await _categoryService.DeleteCategoryAsync(id, userId);
+        if (!success)
+        {
+            if (error == "Category not found.") return NotFound(error);
+            return BadRequest(error);
+        }
         return NoContent();
     }
 }

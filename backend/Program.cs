@@ -1,6 +1,10 @@
 using System.Text;
 using System.Text.Json.Serialization;
 using AspNetCoreRateLimit;
+using FinanceTracker.BusinessLogic.Interfaces.Repositories;
+using FinanceTracker.BusinessLogic.Interfaces.Services;
+using FinanceTracker.BusinessLogic.Repositories;
+using FinanceTracker.BusinessLogic.Services;
 using FinanceTracker.Data;
 using FinanceTracker.Models.Identity;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
@@ -94,6 +98,17 @@ builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
 builder.Services.AddAuthorization();
 
 builder.Services.AddAutoMapper(cfg => { }, typeof(Program).Assembly);
+
+
+builder.Services.AddScoped(typeof(IGenericRepository<>), typeof(GenericRepository<>));
+builder.Services.AddScoped<ICategoryRepository, CategoryRepository>();
+builder.Services.AddScoped<ITransactionRepository, TransactionRepository>();
+builder.Services.AddScoped<IUserProfileRepository, UserProfileRepository>();
+
+builder.Services.AddScoped<IAuthService, AuthService>();
+builder.Services.AddScoped<ICategoryService, CategoryService>();
+builder.Services.AddScoped<ITransactionService, TransactionService>();
+
 
 // Required for IP rate limiting and distributed caching
 builder.Services.AddMemoryCache();

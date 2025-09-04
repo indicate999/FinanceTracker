@@ -1,15 +1,7 @@
-using System.IdentityModel.Tokens.Jwt;
 using System.Security.Claims;
-using System.Text;
 using FinanceTracker.BusinessLogic.DTOs.Auth;
-using FinanceTracker.Data;
-using FinanceTracker.Models.Enums;
-using FinanceTracker.Models.Finance;
-using FinanceTracker.Models.Identity;
-using Microsoft.AspNetCore.Identity;
+using FinanceTracker.BusinessLogic.Interfaces.Services;
 using Microsoft.AspNetCore.Mvc;
-using Microsoft.IdentityModel.Tokens;
-using FinanceTracker.Utils;
 
 namespace FinanceTracker.Controllers;
 
@@ -17,107 +9,43 @@ namespace FinanceTracker.Controllers;
 [Route("api/[controller]")]
 public class AuthController : ControllerBase
 {
-    private readonly UserManager<ApplicationUser> _userManager;
-    private readonly IConfiguration _config;
-    private readonly SignInManager<ApplicationUser> _signInManager;
-    private readonly ApplicationDbContext _db;
+    private readonly IAuthService _authService;
 
-    public AuthController(UserManager<ApplicationUser> userManager,
-                          IConfiguration config,
-                          SignInManager<ApplicationUser> signInManager,
-                          ApplicationDbContext db)
+    public AuthController(IAuthService authService)
     {
-        _userManager = userManager;
-        _config = config;
-        _signInManager = signInManager;
-        _db = db;
-        
+        _authService = authService;
     }
 
     [HttpPost("register")]
     public async Task<IActionResult> Register([FromBody] RegisterDto dto)
     {
-        
         if (!ModelState.IsValid)
         {
-            var errors = ModelState
-                .Where(x => x.Value?.Errors.Count > 0)
-                .Select(x => new
-                {
-                    Field = x.Key,
-                    Errors = x.Value?.Errors.Select(e => e.ErrorMessage).ToArray()
-                });
-
-            return BadRequest(errors);
+            return BadRequest(ModelState);
         }
-        
-        var user = new ApplicationUser
-        {
-            UserName = dto.Username
-        };
 
-        var result = await _userManager.CreateAsync(user, dto.Password);
+        var (result, message) = await _authService.RegisterAsync(dto);
         if (!result.Succeeded)
-            return BadRequest(result.Errors);
-        
-        var profile = new UserProfile
         {
-            UserId = user.Id,
-            User = user,
-            DisplayName = dto.DisplayName
-        };
+            foreach (var error in result.Errors)
+            {
+                ModelState.AddModelError(error.Code, error.Description);
+            }
 
-        _db.UserProfiles.Add(profile);
-        
-        var uncategorized = new Category
-        {
-            Name = Constants.DefaultCategoryName,
-            Type = CategoryType.Neutral,
-            UserId = user.Id
-        };
-        _db.Categories.Add(uncategorized);
+            return BadRequest(ModelState);
+        }
 
-        
-        await _db.SaveChangesAsync();
-
-        return Ok(new { message = "User created" });
+        return Ok(new { message = message });
     }
 
     [HttpPost("login")]
     public async Task<IActionResult> Login(LoginDto dto)
     {
-        var user = await _userManager.FindByNameAsync(dto.Username);
-        if (user == null)
-            return Unauthorized("Invalid login or password");
+        var (token, error) = await _authService.LoginAsync(dto);
+        if (token == null)
+            return Unauthorized(error);
 
-        var result = await _signInManager.CheckPasswordSignInAsync(user, dto.Password, false);
-        if (!result.Succeeded)
-            return Unauthorized("Invalid login or password");
-
-        var token = GenerateJwtToken(user);
         return Ok(new { token });
-    }
-
-    private string GenerateJwtToken(ApplicationUser user)
-    {
-        var claims = new[]
-        {
-            new Claim(ClaimTypes.NameIdentifier, user.Id),
-            new Claim("username", user.UserName!)
-        };
-
-        var key = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(_config["Jwt:Key"]!));
-        var creds = new SigningCredentials(key, SecurityAlgorithms.HmacSha256);
-
-        var token = new JwtSecurityToken(
-            issuer: _config["Jwt:Issuer"],
-            audience: _config["Jwt:Audience"],
-            claims: claims,
-            expires: DateTime.UtcNow.AddDays(14),
-            signingCredentials: creds
-        );
-
-        return new JwtSecurityTokenHandler().WriteToken(token);
     }
 
     [HttpDelete("delete")]
@@ -129,25 +57,12 @@ public class AuthController : ControllerBase
             return Unauthorized("User ID not found in token.");
         }
 
-        var user = await _userManager.FindByIdAsync(userId);
-        if (user == null)
+        var (result, error) = await _authService.DeleteAccountAsync(userId);
+        if (!result.Succeeded)
         {
-            return NotFound("User not found.");
+            return BadRequest(error);
         }
-
-        var result = await _userManager.DeleteAsync(user);
-
-        if (result.Succeeded)
-        {
-            return NoContent();
-        }
-        else
-        {
-            foreach (var error in result.Errors)
-            {
-                Console.WriteLine($"Account deletion error: {error.Description}");
-            }
-            return BadRequest("Failed to delete account.");
-        }
+        
+        return NoContent();
     }
 }
