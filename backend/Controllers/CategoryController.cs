@@ -36,6 +36,7 @@ public class CategoryController : ControllerBase
 
         var query = _db.Categories
             .Where(c => c.UserId == userId)
+            .Include(c => c.Transactions)
             .ProjectTo<CategoryViewDto>(_mapper.ConfigurationProvider)
             .AsNoTracking();
 
@@ -84,6 +85,7 @@ public class CategoryController : ControllerBase
         var userId = User.FindFirstValue(ClaimTypes.NameIdentifier);
         var category = await _db.Categories
             .Where(c => c.Id == id && c.UserId == userId)
+            .Include(c => c.Transactions)
             .ProjectTo<CategoryViewDto>(_mapper.ConfigurationProvider)
             .FirstOrDefaultAsync();
 

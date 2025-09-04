@@ -23,6 +23,7 @@ export class CategoriesComponent implements OnInit {
   editingCategoryId: number | null = null;
   originalCategoryType: string | null = null;
   isEditing: boolean = false;
+  editingCategoryTrCount: number | null = null;
 
   openPopoverId: number | null = null;
 
@@ -88,6 +89,7 @@ export class CategoriesComponent implements OnInit {
     this.isEditing = true;
     this.editingCategoryId = category.id;
     this.originalCategoryType = category.type;
+    this.editingCategoryTrCount = category.transactionCount;
     this.categoryForm.setValue({
       name: category.name,
       type: category.type
@@ -101,7 +103,9 @@ export class CategoriesComponent implements OnInit {
 
     const needsConfirmation =
       this.originalCategoryType !== newType &&
-      (newType === 'Income' || newType === 'Expense');
+      (newType === 'Income' || newType === 'Expense') &&
+      this.editingCategoryTrCount != null && this.editingCategoryTrCount > 0
+    ;
 
     if (needsConfirmation) {
       this.showConfirmationAndSave();

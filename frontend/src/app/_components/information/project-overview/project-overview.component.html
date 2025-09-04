@@ -26,6 +26,7 @@
           <li>Entity Framework Core (for data access)</li>
           <li>PostgreSQL (Database)</li>
           <li>AutoMapper (for DTO mapping)</li>
+          <li>AspNetCoreRateLimit (for Rate Limiting)</li>
         </ul>
       </div>
       <div class="tech-stack">
@@ -55,6 +56,13 @@
       </p>
       <p>
         If a user action violates this rule (e.g., changing a category's type), the backend automatically re-assigns the affected transactions to the user's <span class="code-snippet">"WITHOUT CATEGORY"</span> default category. This logic is handled in the <span class="code-snippet">CategoryController</span> and <span class="code-snippet">TransactionController</span>.
+      </p>
+    </div>
+
+    <div class="highlight-card">
+      <h3>JWT Authentication</h3>
+      <p>
+        The application employs <span class="code-snippet">JSON Web Tokens (JWT)</span> for secure and stateless authentication. Upon successful user login, the API issues a JWT containing claims about the user. This token is then sent with subsequent requests in the `Authorization` header using the `Bearer` scheme. The backend validates these tokens to authenticate requests, ensuring that only authorized users can access protected resources without the need for session state on the server.
       </p>
     </div>
 
@@ -90,6 +98,27 @@
       <h3>UI/UX & User Confirmations</h3>
       <p>
         On the frontend, user experience is improved by providing clear warnings for actions with side effects. When a user changes a category's type, an <span class="code-snippet">MatSnackBar</span> appears with a "Confirm" action, warning them that some transactions may be moved. This prevents accidental data changes. Custom styles were applied to the snackbar for a consistent look and feel.
+      </p>
+    </div>
+
+    <div class="highlight-card">
+      <h3>API Security: Rate Limiting</h3>
+      <p>
+        To protect against potential abuse and Denial of Service (DoS) attacks, the backend implements <span class="code-snippet">Rate Limiting</span>. Using the <span class="code-snippet">AspNetCoreRateLimit</span> NuGet package, the API restricts the number of requests a client can make within a specified time period. This helps ensure the stability and availability of the service by preventing excessive traffic from overwhelming the server resources.
+      </p>
+    </div>
+
+    <div class="highlight-card">
+      <h3>Secure Account Deletion with Cascade</h3>
+      <p>
+        For user data management and privacy, the application provides a secure account deletion feature. When a user initiates account deletion from the settings, the system performs a complete removal of their account. This is achieved through <span class="code-snippet">cascade deletion</span> configured at the database level, ensuring that all associated data—including user profiles, transactions, and categories—are automatically and permanently removed.
+      </p>
+    </div>
+
+    <div class="highlight-card">
+      <h3>Interactive API Documentation with Swagger/OpenAPI</h3>
+      <p>
+        The project integrates <span class="code-snippet">Swagger (OpenAPI)</span> to provide comprehensive and interactive documentation for the backend API. This tool generates a user-friendly web interface that allows developers to visualize and interact with the API's resources without having any of the implementation logic in place. It's invaluable for testing endpoints, understanding request/response formats, and facilitating collaboration between frontend and backend teams during development.
       </p>
     </div>
   </section>

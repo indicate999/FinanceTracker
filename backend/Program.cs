@@ -1,5 +1,6 @@
 using System.Text;
 using System.Text.Json.Serialization;
+using AspNetCoreRateLimit;
 using FinanceTracker.Data;
 using FinanceTracker.Models.Identity;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
@@ -94,8 +95,25 @@ builder.Services.AddAuthorization();
 
 builder.Services.AddAutoMapper(cfg => { }, typeof(Program).Assembly);
 
+// Required for IP rate limiting and distributed caching
+builder.Services.AddMemoryCache();
+
+// Load IP RateLimiting options from appsettings.json
+builder.Services.Configure<IpRateLimitOptions>(builder.Configuration.GetSection("IpRateLimiting"));
+
+// Register the rate limit counter and stores
+builder.Services.AddSingleton<IIpPolicyStore, MemoryCacheIpPolicyStore>();
+builder.Services.AddSingleton<IRateLimitCounterStore, MemoryCacheRateLimitCounterStore>();
+
+// Register the default resolver for client IP address
+builder.Services.AddSingleton<IRateLimitConfiguration, RateLimitConfiguration>();
+
+builder.Services.AddSingleton<IProcessingStrategy, AsyncKeyLockProcessingStrategy>();
+
 
 var app = builder.Build();
+
+app.UseIpRateLimiting();
 
 // Middleware pipeline
 if (app.Environment.IsDevelopment())
@@ -110,5 +128,6 @@ app.UseRouting();
 app.UseAuthentication();
 app.UseAuthorization();
 app.MapControllers();
+
 
 app.Run();
