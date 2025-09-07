@@ -3,7 +3,7 @@ using Microsoft.EntityFrameworkCore.Query;
 
 namespace FinanceTracker.BusinessLogic.Interfaces.Repositories;
 
-public interface IGenericRepository<T> where T : class
+public interface IBaseRepository<T> where T : class
 {
     Task<T?> GetByIdAsync(int id);
     Task<IEnumerable<T>> GetAllAsync();

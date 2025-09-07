@@ -6,12 +6,12 @@ using Microsoft.EntityFrameworkCore.Query;
 
 namespace FinanceTracker.BusinessLogic.Repositories;
 
-public class GenericRepository<T> : IGenericRepository<T> where T : class
+public class BaseRepository<T> : IBaseRepository<T> where T : class
 {
     protected readonly ApplicationDbContext _context;
     protected readonly DbSet<T> _dbSet;
 
-    public GenericRepository(ApplicationDbContext context)
+    public BaseRepository(ApplicationDbContext context)
     {
         _context = context;
         _dbSet = context.Set<T>();

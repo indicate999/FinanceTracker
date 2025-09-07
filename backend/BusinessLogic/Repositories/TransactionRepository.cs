@@ -5,7 +5,7 @@ using Microsoft.EntityFrameworkCore;
 
 namespace FinanceTracker.BusinessLogic.Repositories;
 
-public class TransactionRepository : GenericRepository<Transaction>, ITransactionRepository
+public class TransactionRepository : BaseRepository<Transaction>, ITransactionRepository
 {
     public TransactionRepository(ApplicationDbContext context) : base(context) { }
 

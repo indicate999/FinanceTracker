@@ -2,7 +2,7 @@ using FinanceTracker.Models.Finance;
 
 namespace FinanceTracker.BusinessLogic.Interfaces.Repositories;
 
-public interface ICategoryRepository : IGenericRepository<Category>
+public interface ICategoryRepository : IBaseRepository<Category>
 {
     Task<Category?> GetCategoryWithTransactionsAsync(int id, string userId);
     Task<Category?> GetDefaultCategoryAsync(string userId);

@@ -5,7 +5,7 @@ using Microsoft.EntityFrameworkCore;
 
 namespace FinanceTracker.BusinessLogic.Repositories;
 
-public class UserProfileRepository : GenericRepository<UserProfile>, IUserProfileRepository
+public class UserProfileRepository : BaseRepository<UserProfile>, IUserProfileRepository
 {
     public UserProfileRepository(ApplicationDbContext context) : base(context) { }
 

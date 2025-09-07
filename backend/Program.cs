@@ -100,7 +100,7 @@ builder.Services.AddAuthorization();
 builder.Services.AddAutoMapper(cfg => { }, typeof(Program).Assembly);
 
 
-builder.Services.AddScoped(typeof(IGenericRepository<>), typeof(GenericRepository<>));
+builder.Services.AddScoped(typeof(IBaseRepository<>), typeof(BaseRepository<>));
 builder.Services.AddScoped<ICategoryRepository, CategoryRepository>();
 builder.Services.AddScoped<ITransactionRepository, TransactionRepository>();
 builder.Services.AddScoped<IUserProfileRepository, UserProfileRepository>();
