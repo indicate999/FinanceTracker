@@ -5,8 +5,6 @@ VisualStudioVersion = 17.0.31903.59
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "backend", "backend\backend.csproj", "{E1052A84-7DB7-4CE6-805C-1C97003DD434}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "FinanceTracker.Tests", "FinanceTracker.Tests\FinanceTracker.Tests.csproj", "{26FAFBBE-6F86-493A-8845-60AD0E5528CF}"
-EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -29,18 +27,6 @@ Global
 		{E1052A84-7DB7-4CE6-805C-1C97003DD434}.Release|x64.Build.0 = Release|Any CPU
 		{E1052A84-7DB7-4CE6-805C-1C97003DD434}.Release|x86.ActiveCfg = Release|Any CPU
 		{E1052A84-7DB7-4CE6-805C-1C97003DD434}.Release|x86.Build.0 = Release|Any CPU
-		{26FAFBBE-6F86-493A-8845-60AD0E5528CF}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{26FAFBBE-6F86-493A-8845-60AD0E5528CF}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{26FAFBBE-6F86-493A-8845-60AD0E5528CF}.Debug|x64.ActiveCfg = Debug|Any CPU
-		{26FAFBBE-6F86-493A-8845-60AD0E5528CF}.Debug|x64.Build.0 = Debug|Any CPU
-		{26FAFBBE-6F86-493A-8845-60AD0E5528CF}.Debug|x86.ActiveCfg = Debug|Any CPU
-		{26FAFBBE-6F86-493A-8845-60AD0E5528CF}.Debug|x86.Build.0 = Debug|Any CPU
-		{26FAFBBE-6F86-493A-8845-60AD0E5528CF}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{26FAFBBE-6F86-493A-8845-60AD0E5528CF}.Release|Any CPU.Build.0 = Release|Any CPU
-		{26FAFBBE-6F86-493A-8845-60AD0E5528CF}.Release|x64.ActiveCfg = Release|Any CPU
-		{26FAFBBE-6F86-493A-8845-60AD0E5528CF}.Release|x64.Build.0 = Release|Any CPU
-		{26FAFBBE-6F86-493A-8845-60AD0E5528CF}.Release|x86.ActiveCfg = Release|Any CPU
-		{26FAFBBE-6F86-493A-8845-60AD0E5528CF}.Release|x86.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
