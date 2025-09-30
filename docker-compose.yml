@@ -7,7 +7,7 @@ services:
       context: . # Build context is the current directory (solution root)
       dockerfile: Dockerfile.backend # Path to the backend's Dockerfile
     ports:
-      - "8080:80" # Map host port 8080 to container's port 80. Access backend directly via http://localhost:8080
+      - "5258:5258" # Map host port 8080 to container's port 80. Access backend directly via http://localhost:8080
     environment:
       # Set ASP.NET Core environment to Development for local debugging features
       - ASPNETCORE_ENVIRONMENT=Development

@@ -12,6 +12,10 @@ public class RegisterDto
     
     [Required]
     [StringLength(20, MinimumLength = 6, ErrorMessage = "Password must be 6–20 characters")]
+    [RegularExpression(
+        @"^(?=.*[a-z])(?=.*[A-Z])(?=.*[^a-zA-Z\d]).{6,}$",
+        ErrorMessage = "Password must contain at least one uppercase letter, one lowercase letter, and one special character."
+    )]
     public string Password { get; set; } = string.Empty;
     
     [Required]

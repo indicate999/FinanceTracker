@@ -3,7 +3,7 @@
 
   <form [formGroup]="registerForm" (ngSubmit)="onSubmit()">
     <input type="text" placeholder="Username" formControlName="username" />
-    <input type="password" placeholder="Password (min. 6 characters)" formControlName="password" />
+    <input type="password" placeholder="Password (min. 6 chars, 1 uppercase, 1 lowercase, 1 special)" formControlName="password" />
     <input type="text" placeholder="Display Name" formControlName="displayName" />
 
     <button type="submit" [disabled]="registerForm.invalid">Create Account</button>
