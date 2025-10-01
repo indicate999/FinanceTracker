@@ -12,7 +12,7 @@ services:
       # Set ASP.NET Core environment to Development for local debugging features
       - ASPNETCORE_ENVIRONMENT=Development
       # Connection string for PostgreSQL. 'db' refers to the service name in this compose file.
-      - ConnectionStrings__DefaultConnection=Host=db;Port=5432;Database=FinanceTrackerDB;Username=admin;Password=password
+      # - ConnectionStrings__DefaultConnection=Host=db;Port=5432;Database=FinanceTrackerDB;Username=admin;Password=password
       # Provide JWT configuration. Ensure these match your appsettings.json or actual config.
       - Jwt__Key=your_very_secret_key_here_for_local_dev_and_must_be_long_enough
       - Jwt__Issuer=FinanceTrackerApi
@@ -39,8 +39,8 @@ services:
       - "5432:5432" # Map host port 5432 to container's port 5432. Access DB directly via localhost:5432
     environment:
       POSTGRES_DB: FinanceTrackerDB
-      POSTGRES_USER: admin
-      POSTGRES_PASSWORD: password
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: Hiroki3791
     volumes:
       # Persist database data to a named volume on the host, so data isn't lost if container is removed.
       - finance_tracker_db_data:/var/lib/postgresql/data

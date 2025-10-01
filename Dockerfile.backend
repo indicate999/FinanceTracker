@@ -11,6 +11,12 @@ RUN dotnet restore backend/backend.csproj
 COPY backend/. ./backend/
 WORKDIR /src/backend
 
+RUN dotnet tool install --global dotnet-ef
+ENV PATH="${PATH}:/root/.dotnet/tools"
+
+RUN mkdir -p /app/publish
+RUN dotnet ef migrations bundle --self-contained -r linux-musl-x64 --output /app/publish/efbundle --verbose
+
 # Publish the application for production
 # -c Release: Builds in Release configuration
 # -o /app/publish: Publishes output to /app/publish inside the container
@@ -31,5 +37,8 @@ EXPOSE 80
 # Copy the published application from the build stage to the final image
 COPY --from=build /app/publish .
 
+RUN chmod +x ./efbundle
+
 # Set the entry point for the container: execute the published DLL
-ENTRYPOINT ["dotnet", "backend.dll"]
+ENTRYPOINT ["sh", "-c", "./efbundle && dotnet backend.dll"]
+
