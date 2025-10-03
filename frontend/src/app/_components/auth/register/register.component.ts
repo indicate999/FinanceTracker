@@ -39,17 +39,26 @@ export class RegisterComponent implements OnInit {
         console.error('Registration error:', err);
         this.validationErrors = [];
 
-        if (Array.isArray(err.error)) {
-          err.error.forEach((e: any) => {
-            if (e.description) {
-              this.validationErrors.push(e.description);
+        const errorResponse = err.error;
+
+        if (errorResponse && typeof errorResponse === 'object' && !Array.isArray(errorResponse)) {
+          for (const key in errorResponse) {
+            if (Object.prototype.hasOwnProperty.call(errorResponse, key)) {
+              const messages = errorResponse[key];
+              if (Array.isArray(messages)) {
+                this.validationErrors.push(...messages);
+              }
             }
-          });
-        } else if (typeof err.error === 'string') {
-          this.validationErrors.push(err.error);
-        } else {
-          this.validationErrors.push('Unexpected error occurred.');
+          }
         }
+        else if (typeof errorResponse === 'string') {
+          this.validationErrors.push(errorResponse);
+        }
+
+        if (this.validationErrors.length === 0) {
+          this.validationErrors.push('An unexpected error occurred.');
+        }
+
       }
     });
   }

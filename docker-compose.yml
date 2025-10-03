@@ -7,7 +7,7 @@ services:
       context: . # Build context is the current directory (solution root)
       dockerfile: Dockerfile.backend # Path to the backend's Dockerfile
     ports:
-      - "5258:5258" # Map host port 8080 to container's port 80. Access backend directly via http://localhost:8080
+      - "5258:5258"
     env_file: ./.env
     environment:
       - ASPNETCORE_ENVIRONMENT=${ASPNETCORE_ENVIRONMENT}
@@ -27,7 +27,7 @@ services:
       dockerfile: Dockerfile.frontend # Path to the frontend's Dockerfile
     ports:
       - "4200:80" # Map host port 4200 to container's port 80 (Nginx default). Access frontend via http://localhost:4200
-    env_file: ./.env
+    #env_file: ./.env
     #environment:
     #  - BACKEND_URL=${BACKEND_INTERNAL_URL}
     depends_on:

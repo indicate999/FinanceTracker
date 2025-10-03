@@ -31,7 +31,6 @@ WORKDIR /app
 
 # Expose the port your ASP.NET Core app will listen on.
 # ASP.NET Core applications running in the dotnet/aspnet base image typically listen on port 80 by default.
-# If your Program.cs explicitly configures Kestrel to listen on a different port (e.g., UseUrls("http://*:8080")), adjust this.
 EXPOSE 80
 
 # Copy the published application from the build stage to the final image
