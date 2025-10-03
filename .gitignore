@@ -55,3 +55,6 @@ logs/
 *.tmp
 *.swp
 *.bak
+
+# Environment variables
+.env
