@@ -1,0 +1,30 @@
+
+services:
+  backend:
+    image: financetrackerregistry-b2bqh8ekdmabbnex.azurecr.io/finance-tracker-backend:initial_deploy
+    build:
+      context: .
+      dockerfile: Dockerfile.backend
+    restart: always
+    env_file: ./prod.env
+    environment:
+      # These variables will be set in Azure App Service Configuration
+      - ASPNETCORE_ENVIRONMENT=Development
+      - ConnectionStrings__DefaultConnection=${DB_CONNECTION_STRING}
+      - Jwt__Key=${JWT_KEY}
+      - Jwt__Issuer=${JWT_ISSUER}
+      - Jwt__Audience=${JWT_AUDIENCE}
+    # No ports are exposed publicly; communication is internal
+
+  frontend:
+    image: financetrackerregistry-b2bqh8ekdmabbnex.azurecr.io/finance-tracker-frontend:initial_deploy
+    build:
+      context: .
+      dockerfile: Dockerfile.frontend
+    restart: always
+    ports:
+      # Azure App Service will expose port 80 to the internet on ports 80 and 443
+      - "80:80"
+    environment:
+      # This variable points to the internal backend service
+      - BACKEND_URL=http://backend:5258
