@@ -56,5 +56,14 @@ logs/
 *.swp
 *.bak
 
+# Terraform
+.terraform/
+*.tfstate
+*.tfstate.backup
+*.tfvars
+!*.tfvars.example
+**/terraform.exe
+**/*.exe
+
 # Environment variables
 *.env

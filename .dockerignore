@@ -1,0 +1,10 @@
+**/.git
+**/.vs
+**/.vscode
+**/node_modules
+**/bin
+**/obj
+**/dist
+**/*.log
+**/.terraform
+**/terraform.tfstate*

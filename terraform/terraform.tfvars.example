@@ -1,0 +1,7 @@
+# Required
+postgres_admin_password = "YourSecurePassword123!"
+jwt_key = "your-super-secret-jwt-key-min-32-characters-long-12345"
+
+# Optional JWT settings (has defaults)
+# jwt_issuer = "FinanceTracker"
+# jwt_audience = "FinanceTrackerAPI"
