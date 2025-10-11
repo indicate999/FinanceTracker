@@ -62,6 +62,8 @@ logs/
 *.tfstate.backup
 *.tfvars
 !*.tfvars.example
+**/terraform.exe
+**/*.exe
 
 # Environment variables
 *.env
