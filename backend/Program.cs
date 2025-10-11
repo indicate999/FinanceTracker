@@ -72,15 +72,10 @@ builder.Services.AddIdentityCore<ApplicationUser>(options => { options.User.Requ
 
 builder.Services.AddCors(options =>
 {
-    options.AddPolicy("AllowFrontend",
-        policy =>
-        {
-            var frontendUrl = builder.Configuration["FrontendUrl"] ?? "http://localhost:4200";
-            policy.WithOrigins(frontendUrl)
-                .AllowAnyHeader()
-                .AllowAnyMethod()
-                .AllowCredentials();
-        });
+    options.AddDefaultPolicy(policy =>
+    {
+        policy.AllowAnyOrigin().AllowAnyMethod().AllowAnyHeader();
+    });
 });
 
 
@@ -143,7 +138,14 @@ if (app.Environment.IsDevelopment())
     app.UseSwaggerUI();
 }
 
-app.UseCors("AllowFrontend");
+// Apply migrations on startup (idempotent)
+using (var scope = app.Services.CreateScope())
+{
+    var db = scope.ServiceProvider.GetRequiredService<ApplicationDbContext>();
+    await db.Database.MigrateAsync();
+}
+
+app.UseCors();
 
 app.UseRouting();
 app.UseAuthentication();
