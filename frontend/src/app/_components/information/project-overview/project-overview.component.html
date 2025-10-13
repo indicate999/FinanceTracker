@@ -40,8 +40,9 @@
       <div class="tech-stack">
         <h3>DevOps & Deployment</h3>
         <ul>
+          <li>Terraform (for Infrastructure as Code)</li>
           <li>Docker (for application containerization)</li>
-          <li>Azure App Service (for cloud deployment)</li>
+          <li>Azure Container Apps (for cloud deployment)</li>
           <li>Nginx</li>
         </ul>
       </div>
@@ -77,14 +78,21 @@
     <div class="highlight-card">
       <h3>Containerized Deployment with Docker & Azure</h3>
       <p>
-        The entire application is containerized using <span class="code-snippet">Docker</span>. This encapsulates the application and its dependencies, ensuring a consistent environment from local development to production. These Docker images are deployed to <span class="code-snippet">Azure App Service</span>, a fully managed platform that simplifies deployment, scaling, and monitoring, providing a robust and reliable hosting solution in the cloud.
+        The entire application is containerized using <span class="code-snippet">Docker</span>. This encapsulates the application and its dependencies, ensuring a consistent environment from local development to production. These Docker images are deployed to <span class="code-snippet">Azure Container Apps</span>, a modern serverless container service that simplifies deployment, scaling, and monitoring in the cloud.
       </p>
     </div>
 
     <div class="highlight-card">
       <h3>Production Deployment Architecture</h3>
       <p>
-        The application is designed for a modern, distributed deployment on <span class="code-snippet">Azure App Service</span>. The backend and frontend are hosted in separate <span class="code-snippet">Docker containers</span> for isolation and scalability. The Angular frontend is served by an <span class="code-snippet">Nginx</span> web server within its container, which also acts as a reverse proxy to forward API requests to the backend container. Data persistence is handled by <span class="code-snippet">Azure Database for PostgreSQL</span>, a fully managed cloud database service, ensuring high availability, scalability, and security for financial data.
+        The application is designed for a modern, distributed deployment within an <span class="code-snippet">Azure Container Apps</span> environment. The backend and frontend are hosted in separate <span class="code-snippet">Docker containers</span> for isolation and scalability. The Angular frontend is served by an <span class="code-snippet">Nginx</span> web server within its container, which also acts as a reverse proxy to forward API requests to the backend container. Data persistence is handled by <span class="code-snippet">Azure Database for PostgreSQL</span>, a fully managed cloud database service, ensuring high availability, scalability, and security for financial data.
+      </p>
+    </div>
+
+    <div class="highlight-card">
+      <h3>Infrastructure as Code with Terraform</h3>
+      <p>
+        The entire cloud infrastructure is defined and managed using <span class="code-snippet">Terraform</span>. This Infrastructure as Code (IaC) approach automates the provisioning of the <span class="code-snippet">Azure Container Apps</span> environment, the <span class="code-snippet">Azure Database for PostgreSQL</span>, and all related networking. This ensures the deployment process is reproducible, version-controlled, and aligned with modern DevOps practices.
       </p>
     </div>
 
