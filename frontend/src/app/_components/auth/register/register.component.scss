@@ -23,6 +23,21 @@
     background-color: #ffffff;
   }
 
+  .error-message,
+  .password-requirements {
+    color: #cc0000; // A strong red for error messages
+    font-size: 0.85rem;
+    margin-top: -0.75rem; // Adjust to bring it closer to the input above
+    margin-bottom: 1rem;
+    margin-left: 0.5rem; // Indent to align with input text
+  }
+
+  .password-requirements {
+    color: #333; // A softer color for general requirements
+    margin-top: -0.5rem; // Slightly less margin for clarity
+    margin-bottom: 1.5rem;
+  }
+
   button {
     width: 100%;
     padding: 0.75rem;

@@ -23,6 +23,7 @@
         <ul>
           <li>C# & .NET 8</li>
           <li>ASP.NET Core Web API</li>
+          <li>ASP.NET Core Identity (for User Management)</li>
           <li>Entity Framework Core (for data access)</li>
           <li>PostgreSQL (Database)</li>
           <li>AutoMapper (for DTO mapping)</li>
@@ -65,6 +66,13 @@
       <h3>JWT Authentication</h3>
       <p>
         The application employs <span class="code-snippet">JSON Web Tokens (JWT)</span> for secure and stateless authentication. Upon successful user login, the API issues a JWT containing claims about the user. This token is then sent with subsequent requests in the `Authorization` header using the `Bearer` scheme. The backend validates these tokens to authenticate requests, ensuring that only authorized users can access protected resources without the need for session state on the server.
+      </p>
+    </div>
+
+    <div class="highlight-card">
+      <h3>User Management with ASP.NET Core Identity</h3>
+      <p>
+        For robust user authentication and management, the project leverages <span class="code-snippet">ASP.NET Core Identity</span>. This comprehensive framework handles all aspects of user accounts, including registration, password hashing, user storage, and claims-based identity. It integrates seamlessly with the application's data layer to securely store user credentials and provides the foundational components for the JWT authentication flow, ensuring that user identities are managed securely and efficiently within the backend.
       </p>
     </div>
 

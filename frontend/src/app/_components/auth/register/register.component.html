@@ -3,8 +3,23 @@
 
   <form [formGroup]="registerForm" (ngSubmit)="onSubmit()">
     <input type="text" placeholder="Username" formControlName="username" />
-    <input type="password" placeholder="Password (min. 6 chars, 1 uppercase, 1 lowercase, 1 special)" formControlName="password" />
+    <div
+      *ngIf="registerForm.get('username')?.touched && registerForm.get('username')?.errors?.['required']"
+      class="error-message"
+    >
+      Username cannot be empty.
+    </div>
+    <input type="password" placeholder="Password" formControlName="password" />
+    <div class="password-requirements">
+      Password must be at least 6 characters long and contain at least one uppercase letter, one lowercase letter, and one special character.
+    </div>
     <input type="text" placeholder="Display Name" formControlName="displayName" />
+    <div
+      *ngIf="registerForm.get('displayName')?.touched && registerForm.get('displayName')?.errors?.['required']"
+      class="error-message"
+    >
+      Display Name cannot be empty.
+    </div>
 
     <button type="submit" [disabled]="registerForm.invalid">Create Account</button>
   </form>
